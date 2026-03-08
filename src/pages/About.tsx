@@ -162,7 +162,7 @@ export default function About() {
       </section>
 
       {/* Operational Backbone */}
-      {/* <section className="section-padding bg-brand-primary relative overflow-hidden">
+      <section className="section-padding bg-brand-primary relative overflow-hidden">
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-0 right-0 w-96 h-96 bg-brand-accent rounded-full blur-[100px]" />
           <div className="absolute bottom-0 left-0 w-96 h-96 bg-candy-teal rounded-full blur-[100px]" />
@@ -212,7 +212,7 @@ export default function About() {
             </motion.div>
           </div>
         </div>
-      </section> */}
+      </section>
 
       {/* Our Journey Timeline */}
       <section className="section-padding bg-brand-secondary relative overflow-hidden">
