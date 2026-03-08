@@ -4,10 +4,12 @@ import { Link } from 'react-router-dom';
 import { Star, ArrowRight, Quote, ShieldCheck, Heart, Sparkles, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Category, Product } from '../types';
 import ProductSlider from '../components/ProductSlider';
+import categoriesData from '../data/categories.json';
+import productsData from '../data/products.json';
 
 export default function Home() {
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<Category[]>(categoriesData);
+  const [featuredProducts, setFeaturedProducts] = useState<Product[]>(productsData.filter((p: any) => p.is_featured));
   const [currentSlide, setCurrentSlide] = useState(0);
   const [reviewIndex, setReviewIndex] = useState(0);
   const [reviewLayout, setReviewLayout] = useState({ items: 3, gap: 48 });
@@ -39,9 +41,7 @@ export default function Home() {
   ];
 
   useEffect(() => {
-    fetch('/api/categories').then(res => res.json()).then(setCategories);
-    fetch('/api/products?featured=1').then(res => res.json()).then(setFeaturedProducts);
-
+    // Initial data is set from JSON imports
     const timer = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % heroSlides.length);
     }, 6000);
@@ -323,7 +323,7 @@ export default function Home() {
                       {product.name}
                     </h3>
                     <p className="text-brand-accent font-bold text-[10px] uppercase tracking-widest">
-                      ₹{product.price.toFixed(2)}
+                      ₹{(typeof product.price === 'number' ? product.price : parseFloat(product.price)).toFixed(2)}
                     </p>
                   </div>
                 </Link>

@@ -3,24 +3,21 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Link } from 'react-router-dom';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Product } from '../types';
+import productsData from '../data/products.json';
 
 export default function ProductSlider() {
   const [products, setProducts] = useState<Product[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {
-    fetch('/api/products')
-      .then(res => res.json())
-      .then(data => {
-        // Filter for candy, jelly, or related products
-        const filtered = data.filter((p: Product) => 
-          p.name.toLowerCase().includes('candy') || 
-          p.name.toLowerCase().includes('jelly') ||
-          p.description.toLowerCase().includes('candy') ||
-          p.description.toLowerCase().includes('jelly')
-        );
-        setProducts(filtered);
-      });
+    // Filter for candy, jelly, or related products
+    const filtered = (productsData as any[]).filter((p: any) =>
+      p.name.toLowerCase().includes('candy') ||
+      p.name.toLowerCase().includes('jelly') ||
+      p.description.toLowerCase().includes('candy') ||
+      p.description.toLowerCase().includes('jelly')
+    ).map(p => ({ ...p, price: parseFloat(p.price) }));
+    setProducts(filtered);
   }, []);
 
   const nextSlide = () => {
@@ -51,7 +48,7 @@ export default function ProductSlider() {
         </div>
 
         <div className="relative overflow-hidden">
-          <motion.div 
+          <motion.div
             className="flex gap-8"
             animate={{ x: `-${currentIndex * 33.33}%` }}
             transition={{ type: 'spring', stiffness: 300, damping: 30 }}

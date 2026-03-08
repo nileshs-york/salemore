@@ -3,6 +3,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { ShoppingBag, ArrowLeft, Star, ShieldCheck, Truck, RefreshCcw } from 'lucide-react';
 import { Product } from '../types';
+import productsData from '../data/products.json';
 
 export default function ProductDetail() {
   const { id } = useParams();
@@ -13,18 +14,13 @@ export default function ProductDetail() {
 
   useEffect(() => {
     setLoading(true);
-    fetch(`/api/products/${id}`)
-      .then(res => {
-        if (!res.ok) throw new Error("Product not found");
-        return res.json();
-      })
-      .then(data => {
-        setProduct(data);
-        setLoading(false);
-      })
-      .catch(() => {
-        navigate('/products');
-      });
+    const foundProduct = productsData.find((p: any) => p.id === parseInt(id!));
+    if (foundProduct) {
+      setProduct({ ...foundProduct, price: parseFloat(foundProduct.price as any) } as any);
+      setLoading(false);
+    } else {
+      navigate('/products');
+    }
   }, [id, navigate]);
 
   if (loading) {
@@ -100,7 +96,7 @@ export default function ProductDetail() {
               </p>
 
               <div className="flex flex-col sm:flex-row gap-6 pt-8">
-                <a 
+                <a
                   href="https://www.indiamart.com/sale-more/"
                   target="_blank"
                   rel="noopener noreferrer"
