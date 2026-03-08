@@ -64,9 +64,9 @@ export default function Layout({ children }: LayoutProps) {
                 <span className="text-2xl font-display font-black tracking-tighter transition-colors duration-500 text-white">
                   SALEMORE
                 </span>
-                <span className="text-[8px] font-bold uppercase tracking-[0.4em] text-brand-accent">
+                {/* <span className="text-[8px] font-bold uppercase tracking-[0.4em] text-brand-accent">
                   Manufacturing Excellence
-                </span>
+                </span> */}
               </div>
             </Link>
 
