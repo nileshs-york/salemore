@@ -7,12 +7,25 @@ import multer from "multer";
 import fs from "fs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const db = new Database("salemore.db");
+const isVercel = process.env.VERCEL === '1';
 
-// Ensure upload directory exists
-const uploadDir = path.join(__dirname, "public", "uploads");
-if (!fs.existsSync(uploadDir)) {
+// In Vercel, we can only write to /tmp
+const uploadDir = isVercel
+  ? path.join("/", "tmp", "uploads")
+  : path.join(__dirname, "public", "uploads");
+
+const dbPath = path.join(__dirname, "salemore.db");
+const db = new Database(dbPath);
+
+// Ensure upload directory exists (only locally, Vercel /tmp is handled per request or pre-created)
+if (!isVercel && !fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
+} else if (isVercel && !fs.existsSync(uploadDir)) {
+  try {
+    fs.mkdirSync(uploadDir, { recursive: true });
+  } catch (e) {
+    console.error("Could not create temp upload dir", e);
+  }
 }
 
 // Multer configuration
@@ -311,20 +324,24 @@ app.put("/api/admin/categories/:id", authMiddleware, upload.single("image"), (re
 async function startServer() {
 
   // Vite middleware for development
-  if (process.env.NODE_ENV !== "production" && !process.env.VERCEL) {
+  if (process.env.NODE_ENV !== "production" && !isVercel) {
     const vite = await createViteServer({
       server: { middlewareMode: true },
       appType: "spa",
     });
     app.use(vite.middlewares);
-  } else {
-    app.use(express.static(path.join(__dirname, "dist")));
-    app.get("*", (req, res) => {
-      res.sendFile(path.join(__dirname, "dist", "index.html"));
-    });
+  } else if (!isVercel) {
+    // Only serve static files from dist if we are running the full server locally in production mode
+    // On Vercel, the frontend is handled by vercel.json rewrites/static serving
+    if (fs.existsSync(path.join(__dirname, "dist"))) {
+      app.use(express.static(path.join(__dirname, "dist")));
+      app.get("*", (req, res) => {
+        res.sendFile(path.join(__dirname, "dist", "index.html"));
+      });
+    }
   }
 
-  if (process.env.NODE_ENV !== "production" || !process.env.VERCEL) {
+  if (!isVercel) {
     app.listen(PORT, "0.0.0.0", () => {
       console.log(`Server running on http://localhost:${PORT}`);
     });
@@ -335,6 +352,6 @@ async function startServer() {
 export default app;
 
 // Start server locally
-if (process.env.NODE_ENV !== "production" || !process.env.VERCEL) {
+if (!isVercel) {
   startServer().catch(console.error);
 }
