@@ -34,7 +34,7 @@ export default function Home() {
   return (
     <div className="bg-white overflow-hidden font-sans">
       {/* Hero Section */}
-      <section className="relative h-[calc(100vh-5rem)] md:h-[calc(100vh-6rem)] flex items-center justify-center overflow-hidden bg-black">
+      <section className="relative w-full h-[35vh] sm:h-[50vh] lg:h-[calc(100vh-6rem)] flex items-center justify-center overflow-hidden bg-black">
         <AnimatePresence>
           <motion.div
             key={currentSlide}
@@ -51,11 +51,13 @@ export default function Home() {
                 animate={{ scale: 1 }}
                 transition={{ duration: 6 }}
                 src={heroSlides[currentSlide].image}
-                className="w-full h-full object-cover"
-                autoPlay
-                muted
-                loop
-                playsInline
+                className="w-full h-full object-contain lg:object-cover lg:object-center"
+                autoPlay={true}
+                muted={true}
+                loop={true}
+                playsInline={true}
+                // @ts-ignore
+                webkit-playsinline="true"
                 referrerPolicy="no-referrer"
               />
             ) : (
@@ -64,7 +66,7 @@ export default function Home() {
                 animate={{ scale: 1 }}
                 transition={{ duration: 6 }}
                 src={heroSlides[currentSlide].image}
-                className="w-full h-full object-cover"
+                className="w-full h-full object-contain lg:object-cover lg:object-center"
               />
             )}
           </motion.div>
