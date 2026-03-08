@@ -296,40 +296,43 @@ export default function Home() {
 
       <ProductSlider />
 
-      {/* Global Partners */}
+      {/* Partners Reviews */}
       <section className="section-padding bg-brand-secondary">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-24">
             <span className="text-brand-accent font-bold uppercase tracking-[0.4em] text-[10px] mb-6 block">Trusted Worldwide</span>
-            <h2 className="text-5xl md:text-8xl font-black text-brand-primary tracking-tighter leading-none">Global Partners.</h2>
+            <h2 className="text-5xl md:text-8xl font-black text-brand-primary tracking-tighter leading-none">Partners Reviews.</h2>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
             {[
               {
-                text: "SaleMore's manufacturing consistency is unparalleled. Their ability to scale production while maintaining premium quality has made them our primary partner for the Asian market.",
-                author: "Jameson Wright",
-                role: "Global Sourcing Director"
+                text: "Working with Salemore has been a very positive experience. The products have good market demand, especially the candies and imli range. Their supply is consistent and the team is supportive, which makes distribution smooth for us.",
+                author: "SM Distributor"
               },
               {
-                text: "The innovation in their gummy series is exactly what our customers were looking for. Vibrant, flavorful, and produced to the highest safety standards.",
-                author: "Elena Rodriguez",
-                role: "Wholesale Distributor, EU"
+                text: "Salemore products sell well at our retail counter. Customers like the taste and color, and the packaging also attracts attention. It’s a reliable brand to keep in stock.",
+                author: "End Point Retailer"
+              },
+              {
+                text: "Salemore offers a good combination of quality products and competitive margins. Their chocolates and candy range are performing well in our market, and we look forward to expanding the partnership.",
+                author: "Salemore Super Stockist"
               }
             ].map((review, i) => (
-              <div key={i} className="p-16 bg-white rounded-[3rem] shadow-sm border border-slate-100 relative group hover:shadow-2xl transition-all">
-                <Quote className="absolute top-12 right-12 w-12 h-12 text-brand-secondary group-hover:text-brand-accent/20 transition-colors" />
-                <div className="flex gap-1 mb-8">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="w-4 h-4 fill-brand-accent text-brand-accent" />
-                  ))}
+              <div key={i} className="p-16 bg-white rounded-[3rem] shadow-sm border border-slate-100 relative group hover:shadow-2xl transition-all flex flex-col justify-between">
+                <div>
+                  <Quote className="absolute top-12 right-12 w-12 h-12 text-brand-secondary group-hover:text-brand-accent/20 transition-colors" />
+                  <div className="flex gap-1 mb-8">
+                    {[...Array(5)].map((_, i) => (
+                      <Star key={i} className="w-4 h-4 fill-brand-accent text-brand-accent" />
+                    ))}
+                  </div>
+                  <p className="text-slate-500 text-lg leading-relaxed font-medium mb-10 italic">
+                    "{review.text}"
+                  </p>
                 </div>
-                <p className="text-slate-500 text-lg leading-relaxed font-medium mb-10 italic">
-                  "{review.text}"
-                </p>
                 <div>
                   <h4 className="text-xl font-black text-brand-primary">{review.author}</h4>
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-brand-muted">{review.role}</p>
                 </div>
               </div>
             ))}
@@ -338,24 +341,24 @@ export default function Home() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-32 relative overflow-hidden">
-        <div className="absolute inset-0 candy-gradient" />
-        <div className="absolute inset-0 opacity-20">
-          <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-white via-transparent to-transparent" />
-        </div>
+      <section
+        className="py-32 relative overflow-hidden bg-cover bg-center bg-no-repeat"
+        style={{ backgroundImage: 'url("/Background%20image%20for%20Partnership%20with%20us.png")' }}
+      >
+        <div className="absolute inset-0 bg-brand-primary/60" />
 
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-6xl md:text-9xl font-black text-white tracking-tighter leading-[0.85] mb-12">
-            Ready to <br />Electrify?
+            Partner <br />With Us
           </h2>
-          <p className="text-white/80 text-xl max-w-2xl mx-auto mb-16 font-medium">
+          <p className="text-white/90 text-xl md:text-2xl max-w-2xl mx-auto mb-16 font-medium">
             Join our smart distribution ecosystem and deliver taste, trust, and freshness in every bite.
           </p>
           <Link
             to="/contact"
             className="inline-block px-12 py-6 bg-white text-brand-primary text-[10px] font-bold uppercase tracking-[0.4em] rounded-full shadow-2xl hover:scale-105 transition-all"
           >
-            Start Partnership
+            Partner with us
           </Link>
         </div>
       </section>

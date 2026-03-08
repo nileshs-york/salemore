@@ -6,13 +6,13 @@ export default function About() {
     { year: '1999', title: 'The Foundation', desc: 'Salemore was established as a manufacturer of Toy Candy, Sugar Coated Fennel, and Jelly Cubes, laying the groundwork for a confectionery legacy.' },
     { year: '2017', title: 'GST Milestone', desc: 'Registered under GST on 01-07-2017, formalizing our operations for a new era of Indian commerce.' },
     { year: '2020', title: 'FMCG Expansion', desc: 'Transitioned into a fast-growing FMCG brand, expanding our range to include rich chocolates, tangy imli delights, and premium lollipops.' },
-    { year: new Date().getFullYear().toString(), title: 'Smart Ecosystem', desc: 'Building a smart distribution ecosystem connecting manufacturers, distributors, and retailers with unprecedented efficiency.' },
+    { year: new Date().getFullYear().toString(), title: 'National Reach', desc: 'Expanding our distribution network to ensure reliable delivery and freshness across all markets.' },
   ];
 
   const stats = [
     { label: 'Nature of Business', value: 'Manufacturer', icon: <Factory className="w-6 h-6" /> },
     { label: 'Employees', value: '51-100', icon: <Users className="w-6 h-6" /> },
-    { label: 'Annual Turnover', value: '1.5 - 5 Cr', icon: <TrendingUp className="w-6 h-6" /> },
+    { label: 'Product Range', value: '90+ Varieties', icon: <TrendingUp className="w-6 h-6" /> },
     { label: 'Legal Status', value: 'Proprietorship', icon: <Briefcase className="w-6 h-6" /> },
   ];
 
@@ -30,17 +30,17 @@ export default function About() {
       {/* Hero Section */}
       <section className="relative h-[90vh] flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 bg-brand-primary">
-          <motion.img 
+          <motion.img
             initial={{ scale: 1.3, opacity: 0.2 }}
             animate={{ scale: 1, opacity: 0.4 }}
             transition={{ duration: 15, ease: "linear" }}
-            src="https://images.unsplash.com/photo-1556761175-5973dc0f32e7?auto=format&fit=crop&q=80&w=1920&h=1080" 
+            src="https://images.unsplash.com/photo-1556761175-5973dc0f32e7?auto=format&fit=crop&q=80&w=1920&h=1080"
             className="w-full h-full object-cover"
             referrerPolicy="no-referrer"
           />
           <div className="absolute inset-0 bg-gradient-to-b from-brand-primary/80 via-brand-primary/40 to-brand-primary" />
         </div>
-        
+
         <div className="relative z-10 text-center px-4 max-w-6xl">
           <motion.div
             initial={{ y: 20, opacity: 0 }}
@@ -115,7 +115,7 @@ export default function About() {
               <div className="space-y-6">
                 <span className="text-brand-accent font-bold uppercase tracking-[0.4em] text-[10px]">Our Vision</span>
                 <h2 className="text-6xl md:text-8xl font-black text-brand-primary leading-[0.9] tracking-tighter">
-                  Affordable <br />Indulgence.
+                  Everyday <br />Happiness.
                 </h2>
               </div>
               <div className="space-y-8 text-slate-500 text-lg leading-relaxed font-medium">
@@ -129,7 +129,7 @@ export default function About() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div className="flex items-center gap-4 p-6 bg-white rounded-3xl shadow-sm border border-slate-100">
                   <ShieldCheck className="w-8 h-8 text-brand-accent" />
-                  <span className="text-sm font-bold text-brand-primary">Quality Assurance</span>
+                  <span className="text-sm font-bold text-brand-primary">Premium Ingredients</span>
                 </div>
                 <div className="flex items-center gap-4 p-6 bg-white rounded-3xl shadow-sm border border-slate-100">
                   <Truck className="w-8 h-8 text-brand-accent" />
@@ -137,7 +137,7 @@ export default function About() {
                 </div>
               </div>
             </motion.div>
-            
+
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               whileInView={{ opacity: 1, scale: 1 }}
@@ -162,7 +162,7 @@ export default function About() {
       </section>
 
       {/* Operational Backbone */}
-      <section className="section-padding bg-brand-primary relative overflow-hidden">
+      {/* <section className="section-padding bg-brand-primary relative overflow-hidden">
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-0 right-0 w-96 h-96 bg-brand-accent rounded-full blur-[100px]" />
           <div className="absolute bottom-0 left-0 w-96 h-96 bg-candy-teal rounded-full blur-[100px]" />
@@ -212,7 +212,7 @@ export default function About() {
             </motion.div>
           </div>
         </div>
-      </section>
+      </section> */}
 
       {/* Our Journey Timeline */}
       <section className="section-padding bg-brand-secondary relative overflow-hidden">
@@ -224,7 +224,7 @@ export default function About() {
 
           <div className="relative">
             <div className="absolute left-1/2 top-0 bottom-0 w-px bg-brand-primary/10 hidden lg:block" />
-            
+
             <div className="space-y-24 lg:space-y-48">
               {timeline.map((item, i) => (
                 <motion.div
@@ -263,14 +263,14 @@ export default function About() {
             <span className="text-brand-accent font-bold uppercase tracking-[0.4em] text-[10px] mb-6 block">Our Philosophy</span>
             <h2 className="text-6xl md:text-9xl font-black text-brand-primary tracking-tighter leading-none">Made for Life.</h2>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
             {[
               { title: "Moments of Delight", desc: "Our chocolates and candies are designed to spark moments of delight.", icon: <Sparkles className="w-8 h-8 text-brand-accent" /> },
               { title: "Nostalgic Flavors", desc: "Our imli range celebrates India’s love for bold, nostalgic flavours.", icon: <Heart className="w-8 h-8 text-brand-accent" /> },
               { title: "Nutritious Care", desc: "Our special products represent our commitment to delivering nutritious essentials with care and responsibility.", icon: <Award className="w-8 h-8 text-brand-accent" /> }
             ].map((value, i) => (
-              <motion.div 
+              <motion.div
                 key={i}
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -292,7 +292,7 @@ export default function About() {
       </section>
 
       {/* Final Promise */}
-      <section className="section-padding bg-brand-primary relative overflow-hidden">
+      {/* <section className="section-padding bg-brand-primary relative overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
           <motion.div
             animate={{ scale: [1, 1.2, 1] }}
@@ -321,7 +321,7 @@ export default function About() {
             </div>
           </div>
         </div>
-      </section>
+      </section> */}
     </div>
   );
 }
