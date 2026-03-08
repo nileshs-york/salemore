@@ -82,7 +82,7 @@ export default function Contact() {
                     icon: <MapPin className="w-6 h-6 text-white" />,
                     label: "Address",
                     content: "6, Somnath Industrial Estate, Nr.Canal , Ahmedabad -Himmatnagar Highway, Village - Valad , Taluka & District- Gandhinagar -382355",
-                    href: "https://maps.app.goo.gl/YourMapLinkHere" // Note: Put actual Maps link if needed, or leave generic maps query
+                    href: "https://maps.app.goo.gl/QPCm2ownYiUZW7Ak6?g_st=ic" // Note: Put actual Maps link if needed, or leave generic maps query
                   },
                   {
                     icon: <Phone className="w-6 h-6 text-white" />,
