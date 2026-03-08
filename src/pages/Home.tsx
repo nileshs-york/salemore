@@ -287,7 +287,7 @@ export default function Home() {
             <div className="max-w-2xl">
               <span className="text-brand-accent font-bold uppercase tracking-[0.4em] text-[10px] mb-6 block">Signature Series</span>
               <h2 className="text-5xl md:text-8xl font-black text-brand-primary leading-none tracking-tighter">
-                The Electric <br />Collection.
+                Our Signature <br />Products.
               </h2>
             </div>
             <Link

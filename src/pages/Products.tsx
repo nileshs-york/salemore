@@ -31,7 +31,7 @@ export default function Products() {
 
   const filteredProducts = products.filter(product => {
     const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         product.description.toLowerCase().includes(searchQuery.toLowerCase());
+      product.description.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory = selectedCategory ? product.category_id === selectedCategory : true;
     return matchesSearch && matchesCategory;
   });
@@ -47,20 +47,20 @@ export default function Products() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="text-center mb-10">
-          <motion.span 
+          <motion.span
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             className="text-brand-accent font-bold uppercase tracking-[0.4em] text-[10px] mb-6 block"
           >
-            Our Collections
+            Our Products
           </motion.span>
-          <motion.h1 
+          <motion.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
             className="text-6xl md:text-9xl font-black text-brand-primary tracking-tighter leading-none mb-12"
           >
-            Affordable <br />Indulgence.
+            Our Signature <br />Products.
           </motion.h1>
           <motion.p
             initial={{ opacity: 0, y: 20 }}
@@ -71,7 +71,7 @@ export default function Products() {
             From rich chocolates to tangy imli delights, explore our collection of treats crafted to bring joy, taste, and fun to every household.
           </motion.p>
         </div>
-        
+
         {/* Categories Section */}
         <div className="text-center mb-16">
           <h2 className="text-3xl font-black text-brand-primary mb-8">Categories</h2>
@@ -89,11 +89,10 @@ export default function Products() {
             <div className="flex flex-wrap justify-center gap-3">
               <button
                 onClick={() => setSelectedCategory(null)}
-                className={`px-8 py-4 rounded-full text-[10px] font-bold uppercase tracking-widest transition-all ${
-                  selectedCategory === null 
-                  ? 'bg-brand-primary text-white shadow-xl' 
+                className={`px-8 py-4 rounded-full text-[10px] font-bold uppercase tracking-widest transition-all ${selectedCategory === null
+                  ? 'bg-brand-primary text-white shadow-xl'
                   : 'bg-white text-brand-primary hover:bg-slate-50 border border-slate-100'
-                }`}
+                  }`}
               >
                 All Series
               </button>
@@ -101,11 +100,10 @@ export default function Products() {
                 <button
                   key={cat.id}
                   onClick={() => setSelectedCategory(cat.id)}
-                  className={`px-8 py-4 rounded-full text-[10px] font-bold uppercase tracking-widest transition-all ${
-                    selectedCategory === cat.id 
-                    ? 'bg-brand-accent text-white shadow-xl' 
+                  className={`px-8 py-4 rounded-full text-[10px] font-bold uppercase tracking-widest transition-all ${selectedCategory === cat.id
+                    ? 'bg-brand-accent text-white shadow-xl'
                     : 'bg-white text-brand-primary hover:bg-slate-50 border border-slate-100'
-                  }`}
+                    }`}
                 >
                   {cat.name}
                 </button>
@@ -197,8 +195,8 @@ export default function Products() {
         {filteredProducts.length === 0 && (
           <div className="text-center py-32">
             <p className="text-brand-muted text-xl font-medium">No confections found matching your criteria.</p>
-            <button 
-              onClick={() => {setSearchQuery(''); setSelectedCategory(null);}}
+            <button
+              onClick={() => { setSearchQuery(''); setSelectedCategory(null); }}
               className="mt-8 text-brand-accent font-bold uppercase tracking-widest text-[10px] hover:underline"
             >
               Clear all filters

@@ -3,7 +3,7 @@ import { FileText, Download, ExternalLink } from 'lucide-react';
 
 export default function Catalogue() {
   // Placeholder PDF link
-  const pdfUrl = "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf";
+  const pdfUrl = "Salemore Catalogue.PDF";
 
   return (
     <div className="bg-white min-h-screen">

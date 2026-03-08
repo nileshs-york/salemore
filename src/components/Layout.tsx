@@ -30,7 +30,7 @@ export default function Layout({ children }: LayoutProps) {
   const navLinks = [
     { name: 'Home', path: '/' },
     { name: 'About', path: '/about' },
-    { name: 'Collections', path: '/products', hasDropdown: true },
+    { name: 'Products', path: '/products', hasDropdown: true },
     { name: 'Catalogue', path: '/catalogue' },
     { name: 'Contact', path: '/contact' },
   ];
@@ -85,7 +85,7 @@ export default function Layout({ children }: LayoutProps) {
                   </Link>
 
                   {/* Dropdown */}
-                  {link.hasDropdown && isCollectionsOpen && (
+                  {link.hasDropdown && isCollectionsOpen && categories.length > 0 && (
                     <motion.div
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
