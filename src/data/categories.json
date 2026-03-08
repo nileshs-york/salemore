@@ -1,0 +1,50 @@
+[
+  {
+    "id": 1,
+    "name": "Candy Toys",
+    "description": "Delicious assortment of candy toys",
+    "image": "/uploads/imported/candy_toys_1772965824699.jpeg"
+  },
+  {
+    "id": 2,
+    "name": "Chocolates",
+    "description": "Delicious assortment of chocolates",
+    "image": "/uploads/imported/chocolates_1772965824706.jpeg"
+  },
+  {
+    "id": 3,
+    "name": "Cones",
+    "description": "Delicious assortment of cones",
+    "image": "/uploads/imported/cones_1772965824706.jpeg"
+  },
+  {
+    "id": 4,
+    "name": "Fruit balls",
+    "description": "Delicious assortment of fruit balls",
+    "image": "/uploads/imported/fruit_ball_1772965824707.jpeg"
+  },
+  {
+    "id": 5,
+    "name": "Gems",
+    "description": "Delicious assortment of gems",
+    "image": "/uploads/imported/gems_monster_1772965824708.jpeg"
+  },
+  {
+    "id": 6,
+    "name": "Jelly",
+    "description": "Delicious assortment of jelly",
+    "image": "/uploads/imported/jelly_fish_1772965824708.jpeg"
+  },
+  {
+    "id": 7,
+    "name": "Lollipops",
+    "description": "Delicious assortment of lollipops",
+    "image": "/uploads/imported/lollipops_and_toys_1772965824711.jpeg"
+  },
+  {
+    "id": 8,
+    "name": "Mouth Freshner",
+    "description": "Delicious assortment of mouth freshner",
+    "image": "/uploads/imported/mint(1)_1772965824712.jpeg"
+  }
+]

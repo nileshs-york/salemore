@@ -3,10 +3,12 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { Search, ArrowRight } from 'lucide-react';
 import { Product, Category } from '../types';
+import categoriesData from '../data/categories.json';
+import productsData from '../data/products.json';
 
 export default function Products() {
-  const [products, setProducts] = useState<Product[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
+  const [products, setProducts] = useState<Product[]>(productsData.map((p: any) => ({ ...p, price: parseFloat(p.price) })));
+  const [categories, setCategories] = useState<Category[]>(categoriesData);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchParams] = useSearchParams();
   const [selectedCategory, setSelectedCategory] = useState<number | null>(
@@ -14,11 +16,6 @@ export default function Products() {
   );
   const [currentPage, setCurrentPage] = useState(1);
   const productsPerPage = 8;
-
-  useEffect(() => {
-    fetch('/api/products').then(res => res.json()).then(setProducts);
-    fetch('/api/categories').then(res => res.json()).then(setCategories);
-  }, []);
 
   useEffect(() => {
     const categoryParam = searchParams.get('category');

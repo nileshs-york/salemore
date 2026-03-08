@@ -14,17 +14,17 @@ export default function Contact() {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     try {
-      const response = await fetch('/api/contacts', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
-      });
-      if (response.ok) {
-        alert('Thank you for your wholesale inquiry. Our regional representative will contact you within 24 hours.');
-        setFormData({ name: '', email: '', subject: '', message: '', company: '' });
-      } else {
-        alert('Failed to submit inquiry. Please try again later.');
-      }
+      // Simulate submission by saving to localStorage
+      const existing = JSON.parse(localStorage.getItem('adminContacts') || '[]');
+      const newContact = {
+        ...formData,
+        id: Date.now(),
+        created_at: new Date().toISOString()
+      };
+      localStorage.setItem('adminContacts', JSON.stringify([newContact, ...existing]));
+
+      alert('Thank you for your wholesale inquiry. Our regional representative will contact you within 24 hours. (Saved to localStorage)');
+      setFormData({ name: '', email: '', subject: '', message: '', company: '' });
     } catch (error) {
       console.error('Error submitting contact form:', error);
       alert('Failed to submit inquiry. Please try again later.');
