@@ -593,7 +593,16 @@ export default function Admin() {
                             </td>
                             <td className="px-10 py-8 font-black text-brand-primary">₹{product.price.toFixed(2)}</td>
                             <td className="px-10 py-8 text-right flex gap-2">
-                              <button onClick={() => { setEditingProduct(product); setNewProduct({ ...product, category_id: product.category_id.toString(), image: null }); }} className="p-4 text-slate-300 hover:text-brand-accent hover:bg-brand-accent/10 rounded-2xl transition-all">Edit</button>
+                              <button onClick={() => {
+                                setEditingProduct(product);
+                                setNewProduct({
+                                  ...product,
+                                  category_id: product.category_id.toString(),
+                                  price: product.price.toString(),
+                                  is_featured: !!product.is_featured,
+                                  image: null
+                                });
+                              }} className="p-4 text-slate-300 hover:text-brand-accent hover:bg-brand-accent/10 rounded-2xl transition-all">Edit</button>
                               <button
                                 onClick={() => handleDeleteProduct(product.id)}
                                 className="p-4 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-2xl transition-all"

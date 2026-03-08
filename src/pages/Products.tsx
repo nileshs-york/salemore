@@ -140,7 +140,7 @@ export default function Products() {
                         View Details <ArrowRight size={14} />
                       </span>
                     </div>
-                    {product.featured && (
+                    {product.is_featured === 1 && (
                       <div className="absolute top-6 right-6 px-4 py-2 bg-brand-accent text-white text-[8px] font-bold uppercase tracking-widest rounded-full shadow-lg">
                         Featured
                       </div>

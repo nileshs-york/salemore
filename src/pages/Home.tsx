@@ -95,7 +95,6 @@ export default function Home() {
                 playsInline={true}
                 // @ts-ignore
                 webkit-playsinline="true"
-                referrerPolicy="no-referrer"
               />
             ) : (
               <motion.img
@@ -316,6 +315,11 @@ export default function Home() {
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000"
                       referrerPolicy="no-referrer"
                     />
+                    {product.is_featured === 1 && (
+                      <div className="absolute top-6 right-6 px-4 py-2 bg-brand-accent text-white text-[8px] font-bold uppercase tracking-widest rounded-full shadow-lg">
+                        Featured
+                      </div>
+                    )}
                     <div className="absolute inset-0 bg-gradient-to-t from-brand-primary/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                   </div>
                   <div className="space-y-2">
