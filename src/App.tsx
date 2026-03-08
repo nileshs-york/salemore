@@ -23,7 +23,7 @@ export default function App() {
           <Route path="/catalogue" element={<Catalogue />} />
           <Route path="/catalog-import" element={<CatalogImport />} />
           <Route path="/contact" element={<Contact />} />
-          <Route path="/admin" element={<Admin />} />
+          <Route path="/6efaa472" element={<Admin />} />
         </Routes>
       </Layout>
     </Router>

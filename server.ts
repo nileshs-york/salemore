@@ -177,8 +177,8 @@ async function startServer() {
   });
 
   // Admin Authentication (Simplified for demo)
-  const ADMIN_USER = "admin";
-  const ADMIN_PASS = "salemore123";
+  const ADMIN_USER = "admin_manish";
+  const ADMIN_PASS = "Manish@SaleMore#1999";
 
   app.post("/api/admin/login", (req, res) => {
     const { username, password } = req.body;
