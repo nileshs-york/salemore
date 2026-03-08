@@ -67,20 +67,20 @@ export function DataProvider({ children }: { children: ReactNode }) {
             localStorage.setItem('adminContacts', JSON.stringify(contacts));
 
             // Only attempt to save to local files during development
-            if (import.meta.env.DEV) {
-                const syncFiles = [
-                    { fileName: 'products.json', data: products },
-                    { fileName: 'categories.json', data: categories },
-                    { fileName: 'contacts.json', data: contacts }
-                ];
+            // if (import.meta.env.DEV) {
+            const syncFiles = [
+                { fileName: 'products.json', data: products },
+                { fileName: 'categories.json', data: categories },
+                { fileName: 'contacts.json', data: contacts }
+            ];
 
-                syncFiles.forEach(file => {
-                    fetch('/api/save-local-json', {
-                        method: 'POST',
-                        body: JSON.stringify(file)
-                    }).catch(err => console.log(`File sync not available for ${file.fileName}`));
-                });
-            }
+            syncFiles.forEach(file => {
+                fetch('/api/save-local-json', {
+                    method: 'POST',
+                    body: JSON.stringify(file)
+                }).catch(err => console.log(`File sync not available for ${file.fileName}`));
+            });
+            // }
         }
     }, [products, categories, contacts, isInitialized]);
 
