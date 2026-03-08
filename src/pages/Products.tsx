@@ -18,10 +18,6 @@ export default function Products() {
   const productsPerPage = 8;
 
   useEffect(() => {
-    // Data is initialized from static JSON files
-  }, []);
-
-  useEffect(() => {
     const categoryParam = searchParams.get('category');
     setSelectedCategory(categoryParam ? parseInt(categoryParam) : null);
   }, [searchParams]);

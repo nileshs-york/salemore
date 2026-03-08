@@ -2,6 +2,8 @@ import { useState, useEffect, FormEvent } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Plus, Trash2, Package, LayoutGrid, AlertCircle, CheckCircle, LogOut, Lock, MessageSquare } from 'lucide-react';
 import { Category, Product } from '../types';
+import categoriesData from '../data/categories.json';
+import productsData from '../data/products.json';
 
 interface Contact {
   id: number;
@@ -18,7 +20,7 @@ export default function Admin() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loginError, setLoginError] = useState('');
-  
+
   const [categories, setCategories] = useState<Category[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [contacts, setContacts] = useState<Contact[]>([]);
@@ -82,21 +84,17 @@ export default function Admin() {
   const handleLogin = async (e: FormEvent) => {
     e.preventDefault();
     setLoginError('');
-    try {
-      const res = await fetch('/api/admin/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password })
-      });
-      const data = await res.json();
-      if (res.ok) {
-        setToken(data.token);
-        localStorage.setItem('adminToken', data.token);
-      } else {
-        setLoginError(data.error || 'Login failed');
-      }
-    } catch (err) {
-      setLoginError('Server error');
+
+    // Using static credentials as requested to bypass API
+    const STATIC_USER = "admin_manish";
+    const STATIC_PASS = "Manish@SaleMore#1999";
+
+    if (username === STATIC_USER && password === STATIC_PASS) {
+      const fakeToken = "fake-jwt-token-salemore";
+      setToken(fakeToken);
+      localStorage.setItem('adminToken', fakeToken);
+    } else {
+      setLoginError('Invalid credentials');
     }
   };
 
@@ -127,14 +125,14 @@ export default function Admin() {
 
       const res = await fetch('/api/admin/products', {
         method: 'POST',
-        headers: { 
+        headers: {
           'Authorization': token || ''
         },
         body: formData
       });
       if (res.ok) {
         setStatus({ type: 'success', message: 'Product added successfully!' });
-        setNewProduct({ 
+        setNewProduct({
           category_id: '', name: '', description: '', price: '', image: null, is_featured: false,
           packaging_size: '', shape: '', packaging: '', color: '', per_piece_price: '', mrp: ''
         });
@@ -149,193 +147,75 @@ export default function Admin() {
     setTimeout(() => setStatus(null), 3000);
   };
 
-  const handleAddCategory = async (e: FormEvent) => {
+  const handleAddCategory = (e: FormEvent) => {
     e.preventDefault();
     setIsAdding(true);
-    try {
-      const formData = new FormData();
-      formData.append('name', newCategory.name);
-      formData.append('description', newCategory.description);
-      if (newCategory.image) {
-        formData.append('image', newCategory.image);
-      }
-
-      const res = await fetch('/api/admin/categories', {
-        method: 'POST',
-        headers: { 
-          'Authorization': token || ''
-        },
-        body: formData
-      });
-      if (res.ok) {
-        setStatus({ type: 'success', message: 'Category added successfully!' });
-        setNewCategory({ name: '', description: '', image: null });
-        fetchData();
-      } else {
-        throw new Error();
-      }
-    } catch (err) {
-      setStatus({ type: 'error', message: 'Failed to add category.' });
-    }
+    const categoryToAdd = {
+      id: Date.now(),
+      ...newCategory,
+      image: newCategory.image ? URL.createObjectURL(newCategory.image) : '/placeholder.jpg'
+    } as Category;
+    setCategories(prev => [categoryToAdd, ...prev]);
+    setStatus({ type: 'success', message: 'Category added to preview!' });
+    setNewCategory({ name: '', description: '', image: null });
     setIsAdding(false);
     setTimeout(() => setStatus(null), 3000);
   };
 
-  const handleDeleteProduct = async (id: number) => {
-    if (!confirm('Are you sure you want to delete this product?')) return;
-    try {
-      const res = await fetch(`/api/admin/products/${id}`, { 
-        method: 'DELETE',
-        headers: { 'Authorization': token || '' }
-      });
-      if (res.ok) {
-        setStatus({ type: 'success', message: 'Product deleted!' });
-        fetchData();
-      }
-    } catch (err) {
-      setStatus({ type: 'error', message: 'Failed to delete product.' });
-    }
+  const handleDeleteProduct = (id: number) => {
+    if (!confirm('Are you sure? (Preview mode)')) return;
+    setProducts(prev => prev.filter(p => p.id !== id));
+    setStatus({ type: 'success', message: 'Product removed from preview' });
     setTimeout(() => setStatus(null), 3000);
   };
 
-  const handleDeleteCategory = async (id: number) => {
-    if (!confirm('Are you sure you want to delete this category? All products in this category must be deleted first.')) return;
-    try {
-      const res = await fetch(`/api/admin/categories/${id}`, { 
-        method: 'DELETE',
-        headers: { 'Authorization': token || '' }
-      });
-      if (res.ok) {
-        setStatus({ type: 'success', message: 'Category deleted!' });
-        fetchData();
-      } else {
-        const data = await res.json();
-        throw new Error(data.error);
-      }
-    } catch (err: any) {
-      setStatus({ type: 'error', message: err.message || 'Failed to delete category.' });
+  const handleDeleteCategory = (id: number) => {
+    const hasProducts = products.some(p => p.category_id === id);
+    if (hasProducts) {
+      setStatus({ type: 'error', message: 'Cannot delete category with products' });
+      return;
     }
+    setCategories(prev => prev.filter(c => c.id !== id));
+    setStatus({ type: 'success', message: 'Category removed' });
     setTimeout(() => setStatus(null), 3000);
   };
 
-  const handleUpdateProduct = async (e: FormEvent) => {
+  const handleUpdateProduct = (e: FormEvent) => {
     e.preventDefault();
     if (!editingProduct) return;
-    setIsAdding(true);
-    try {
-      const formData = new FormData();
-      formData.append('category_id', newProduct.category_id);
-      formData.append('name', newProduct.name);
-      formData.append('description', newProduct.description);
-      formData.append('price', newProduct.price);
-      formData.append('is_featured', newProduct.is_featured ? '1' : '0');
-      formData.append('packaging_size', newProduct.packaging_size);
-      formData.append('shape', newProduct.shape);
-      formData.append('packaging', newProduct.packaging);
-      formData.append('color', newProduct.color);
-      formData.append('per_piece_price', newProduct.per_piece_price);
-      formData.append('mrp', newProduct.mrp);
-      if (newProduct.image) {
-        formData.append('image', newProduct.image);
-      }
-
-      const res = await fetch(`/api/admin/products/${editingProduct.id}`, {
-        method: 'PUT',
-        headers: { 'Authorization': token || '' },
-        body: formData
-      });
-      if (res.ok) {
-        setStatus({ type: 'success', message: 'Product updated successfully!' });
-        setEditingProduct(null);
-        setNewProduct({ 
-          category_id: '', name: '', description: '', price: '', image: null, is_featured: false,
-          packaging_size: '', shape: '', packaging: '', color: '', per_piece_price: '', mrp: ''
-        });
-        fetchData();
-      } else {
-        throw new Error();
-      }
-    } catch (err) {
-      setStatus({ type: 'error', message: 'Failed to update product.' });
-    }
+    setProducts(prev => prev.map(p => p.id === editingProduct.id ? { ...p, ...newProduct, price: parseFloat(newProduct.price) } : p) as any);
+    setStatus({ type: 'success', message: 'Product updated in preview' });
+    setEditingProduct(null);
     setIsAdding(false);
     setTimeout(() => setStatus(null), 3000);
   };
 
-  const handleUpdateCategory = async (e: FormEvent) => {
+  const handleUpdateCategory = (e: FormEvent) => {
     e.preventDefault();
     if (!editingCategory) return;
-    setIsAdding(true);
-    try {
-      const formData = new FormData();
-      formData.append('name', newCategory.name);
-      formData.append('description', newCategory.description);
-      if (newCategory.image) {
-        formData.append('image', newCategory.image);
-      }
-
-      const res = await fetch(`/api/admin/categories/${editingCategory.id}`, {
-        method: 'PUT',
-        headers: { 'Authorization': token || '' },
-        body: formData
-      });
-      if (res.ok) {
-        setStatus({ type: 'success', message: 'Category updated successfully!' });
-        setEditingCategory(null);
-        setNewCategory({ name: '', description: '', image: null });
-        fetchData();
-      } else {
-        throw new Error();
-      }
-    } catch (err) {
-      setStatus({ type: 'error', message: 'Failed to update category.' });
-    }
+    setCategories(prev => prev.map(c => c.id === editingCategory.id ? { ...c, ...newCategory } : c) as any);
+    setStatus({ type: 'success', message: 'Category updated in preview' });
+    setEditingCategory(null);
     setIsAdding(false);
     setTimeout(() => setStatus(null), 3000);
   };
 
-  const handleBulkDeleteProducts = async () => {
-    if (!confirm('Are you sure you want to delete selected products?')) return;
-    try {
-      const res = await fetch('/api/admin/products/bulk-delete', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': token || '' },
-        body: JSON.stringify({ ids: selectedProductIds })
-      });
-      if (res.ok) {
-        setStatus({ type: 'success', message: 'Products deleted!' });
-        setSelectedProductIds([]);
-        fetchData();
-      }
-    } catch (err) {
-      setStatus({ type: 'error', message: 'Failed to delete products.' });
-    }
-    setTimeout(() => setStatus(null), 3000);
+  const handleBulkDeleteProducts = () => {
+    setProducts(prev => prev.filter(p => !selectedProductIds.includes(p.id)));
+    setSelectedProductIds([]);
+    setStatus({ type: 'success', message: 'Products removed' });
   };
 
-  const handleBulkDeleteCategories = async () => {
-    if (!confirm('Are you sure you want to delete selected categories?')) return;
-    try {
-      const res = await fetch('/api/admin/categories/bulk-delete', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': token || '' },
-        body: JSON.stringify({ ids: selectedCategoryIds })
-      });
-      if (res.ok) {
-        setStatus({ type: 'success', message: 'Categories deleted!' });
-        setSelectedCategoryIds([]);
-        fetchData();
-      }
-    } catch (err) {
-      setStatus({ type: 'error', message: 'Failed to delete categories.' });
-    }
-    setTimeout(() => setStatus(null), 3000);
+  const handleBulkDeleteCategories = () => {
+    setCategories(prev => prev.filter(c => !selectedCategoryIds.includes(c.id)));
+    setSelectedCategoryIds([]);
+    setStatus({ type: 'success', message: 'Categories removed' });
   };
 
   if (!token) {
     return (
       <div className="min-h-screen candy-mesh flex items-center justify-center p-4">
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           className="w-full max-w-md bg-white p-12 rounded-[3rem] shadow-2xl border border-slate-100"
@@ -391,21 +271,20 @@ export default function Admin() {
             <h1 className="text-5xl font-black text-brand-primary tracking-tighter mb-2">Wholesale Portal</h1>
             <p className="text-brand-muted font-bold uppercase tracking-[0.4em] text-[10px]">Manufacturing Management</p>
           </div>
-          
+
           <div className="flex items-center gap-4">
             {status && (
               <motion.div
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
-                className={`px-6 py-3 rounded-full flex items-center gap-3 shadow-lg ${
-                  status.type === 'success' ? 'bg-emerald-500 text-white' : 'bg-red-500 text-white'
-                }`}
+                className={`px-6 py-3 rounded-full flex items-center gap-3 shadow-lg ${status.type === 'success' ? 'bg-emerald-500 text-white' : 'bg-red-500 text-white'
+                  }`}
               >
                 {status.type === 'success' ? <CheckCircle size={18} /> : <AlertCircle size={18} />}
                 <span className="text-xs font-bold uppercase tracking-widest">{status.message}</span>
               </motion.div>
             )}
-            <button 
+            <button
               onClick={handleLogout}
               className="p-4 bg-white text-brand-muted hover:text-brand-accent rounded-2xl shadow-sm transition-all"
             >
@@ -418,25 +297,22 @@ export default function Admin() {
         <div className="flex gap-4 mb-12">
           <button
             onClick={() => setActiveTab('products')}
-            className={`px-8 py-4 rounded-2xl text-[10px] font-bold uppercase tracking-widest transition-all flex items-center gap-3 ${
-              activeTab === 'products' ? 'bg-brand-primary text-white shadow-xl' : 'bg-white text-brand-muted hover:bg-slate-100'
-            }`}
+            className={`px-8 py-4 rounded-2xl text-[10px] font-bold uppercase tracking-widest transition-all flex items-center gap-3 ${activeTab === 'products' ? 'bg-brand-primary text-white shadow-xl' : 'bg-white text-brand-muted hover:bg-slate-100'
+              }`}
           >
             <Package size={16} /> Products
           </button>
           <button
             onClick={() => setActiveTab('categories')}
-            className={`px-8 py-4 rounded-2xl text-[10px] font-bold uppercase tracking-widest transition-all flex items-center gap-3 ${
-              activeTab === 'categories' ? 'bg-brand-primary text-white shadow-xl' : 'bg-white text-brand-muted hover:bg-slate-100'
-            }`}
+            className={`px-8 py-4 rounded-2xl text-[10px] font-bold uppercase tracking-widest transition-all flex items-center gap-3 ${activeTab === 'categories' ? 'bg-brand-primary text-white shadow-xl' : 'bg-white text-brand-muted hover:bg-slate-100'
+              }`}
           >
             <LayoutGrid size={16} /> Categories
           </button>
           <button
             onClick={() => setActiveTab('contacts')}
-            className={`px-8 py-4 rounded-2xl text-[10px] font-bold uppercase tracking-widest transition-all flex items-center gap-3 ${
-              activeTab === 'contacts' ? 'bg-brand-primary text-white shadow-xl' : 'bg-white text-brand-muted hover:bg-slate-100'
-            }`}
+            className={`px-8 py-4 rounded-2xl text-[10px] font-bold uppercase tracking-widest transition-all flex items-center gap-3 ${activeTab === 'contacts' ? 'bg-brand-primary text-white shadow-xl' : 'bg-white text-brand-muted hover:bg-slate-100'
+              }`}
           >
             <MessageSquare size={16} /> Contacts
           </button>
@@ -449,7 +325,7 @@ export default function Admin() {
               <h2 className="text-2xl font-black text-brand-primary mb-8 flex items-center gap-3">
                 <Plus className="text-brand-accent" /> {activeTab === 'products' ? 'Add Product' : activeTab === 'categories' ? 'Add Category' : 'Contact Info'}
               </h2>
-              
+
               {activeTab === 'products' ? (
                 <form onSubmit={handleAddProduct} className="space-y-6">
                   <div className="space-y-2">
@@ -650,7 +526,7 @@ export default function Admin() {
                   {activeTab === 'products' ? <Package className="text-brand-accent" /> : activeTab === 'categories' ? <LayoutGrid className="text-brand-accent" /> : <MessageSquare className="text-brand-accent" />}
                   {activeTab === 'products' ? 'Product Inventory' : activeTab === 'categories' ? 'Categories' : 'Contacts'}
                 </h2>
-                
+
                 {activeTab !== 'contacts' && (
                   <div className="flex items-center gap-4">
                     <input
@@ -670,12 +546,12 @@ export default function Admin() {
                     )}
                   </div>
                 )}
-                
+
                 <span className="px-6 py-2 bg-slate-50 rounded-full text-[10px] font-black text-brand-muted uppercase tracking-widest">
                   {activeTab === 'products' ? `${products.length} Items` : activeTab === 'categories' ? `${categories.length} Series` : `${contacts.length} Submissions`}
                 </span>
               </div>
-              
+
               <div className="overflow-x-auto">
                 {activeTab === 'products' ? (
                   <table className="w-full text-left">
@@ -695,38 +571,38 @@ export default function Admin() {
                         .filter(p => p.name.toLowerCase().includes(productSearch.toLowerCase()))
                         .slice((productPage - 1) * 10, productPage * 10)
                         .map((product) => (
-                        <tr key={product.id} className="hover:bg-slate-50/30 transition-colors">
-                          <td className="px-10 py-8">
-                            <input type="checkbox" checked={selectedProductIds.includes(product.id)} onChange={(e) => setSelectedProductIds(e.target.checked ? [...selectedProductIds, product.id] : selectedProductIds.filter(id => id !== product.id))} />
-                          </td>
-                          <td className="px-10 py-8">
-                            <div className="flex items-center gap-6">
-                              <img src={product.image} alt="" className="w-16 h-16 rounded-2xl object-cover shadow-sm" />
-                              <div>
-                                <p className="font-bold text-brand-primary text-lg">{product.name}</p>
-                                {product.is_featured === 1 && (
-                                  <span className="text-[8px] font-black uppercase tracking-widest text-brand-accent">Featured</span>
-                                )}
+                          <tr key={product.id} className="hover:bg-slate-50/30 transition-colors">
+                            <td className="px-10 py-8">
+                              <input type="checkbox" checked={selectedProductIds.includes(product.id)} onChange={(e) => setSelectedProductIds(e.target.checked ? [...selectedProductIds, product.id] : selectedProductIds.filter(id => id !== product.id))} />
+                            </td>
+                            <td className="px-10 py-8">
+                              <div className="flex items-center gap-6">
+                                <img src={product.image} alt="" className="w-16 h-16 rounded-2xl object-cover shadow-sm" />
+                                <div>
+                                  <p className="font-bold text-brand-primary text-lg">{product.name}</p>
+                                  {product.is_featured === 1 && (
+                                    <span className="text-[8px] font-black uppercase tracking-widest text-brand-accent">Featured</span>
+                                  )}
+                                </div>
                               </div>
-                            </div>
-                          </td>
-                          <td className="px-10 py-8">
-                            <span className="px-4 py-2 bg-slate-100 rounded-full text-[10px] font-bold text-brand-muted uppercase tracking-widest">
-                              {categories.find(c => c.id === product.category_id)?.name || 'Unknown'}
-                            </span>
-                          </td>
-                          <td className="px-10 py-8 font-black text-brand-primary">₹{product.price.toFixed(2)}</td>
-                          <td className="px-10 py-8 text-right flex gap-2">
-                            <button onClick={() => { setEditingProduct(product); setNewProduct({ ...product, category_id: product.category_id.toString(), image: null }); }} className="p-4 text-slate-300 hover:text-brand-accent hover:bg-brand-accent/10 rounded-2xl transition-all">Edit</button>
-                            <button
-                              onClick={() => handleDeleteProduct(product.id)}
-                              className="p-4 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-2xl transition-all"
-                            >
-                              <Trash2 size={20} />
-                            </button>
-                          </td>
-                        </tr>
-                      ))}
+                            </td>
+                            <td className="px-10 py-8">
+                              <span className="px-4 py-2 bg-slate-100 rounded-full text-[10px] font-bold text-brand-muted uppercase tracking-widest">
+                                {categories.find(c => c.id === product.category_id)?.name || 'Unknown'}
+                              </span>
+                            </td>
+                            <td className="px-10 py-8 font-black text-brand-primary">₹{product.price.toFixed(2)}</td>
+                            <td className="px-10 py-8 text-right flex gap-2">
+                              <button onClick={() => { setEditingProduct(product); setNewProduct({ ...product, category_id: product.category_id.toString(), image: null }); }} className="p-4 text-slate-300 hover:text-brand-accent hover:bg-brand-accent/10 rounded-2xl transition-all">Edit</button>
+                              <button
+                                onClick={() => handleDeleteProduct(product.id)}
+                                className="p-4 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-2xl transition-all"
+                              >
+                                <Trash2 size={20} />
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
                     </tbody>
                   </table>
                 ) : activeTab === 'categories' ? (
@@ -746,30 +622,30 @@ export default function Admin() {
                         .filter(c => c.name.toLowerCase().includes(categorySearch.toLowerCase()))
                         .slice((categoryPage - 1) * 10, categoryPage * 10)
                         .map((cat) => (
-                        <tr key={cat.id} className="hover:bg-slate-50/30 transition-colors">
-                          <td className="px-10 py-8">
-                            <input type="checkbox" checked={selectedCategoryIds.includes(cat.id)} onChange={(e) => setSelectedCategoryIds(e.target.checked ? [...selectedCategoryIds, cat.id] : selectedCategoryIds.filter(id => id !== cat.id))} />
-                          </td>
-                          <td className="px-10 py-8">
-                            <div className="flex items-center gap-6">
-                              <img src={cat.image} alt="" className="w-16 h-16 rounded-2xl object-cover shadow-sm" />
-                              <p className="font-bold text-brand-primary text-lg">{cat.name}</p>
-                            </div>
-                          </td>
-                          <td className="px-10 py-8">
-                            <p className="text-xs text-brand-muted font-medium line-clamp-2 max-w-xs">{cat.description}</p>
-                          </td>
-                          <td className="px-10 py-8 text-right flex gap-2">
-                            <button onClick={() => { setEditingCategory(cat); setNewCategory({ ...cat, image: null }); }} className="p-4 text-slate-300 hover:text-brand-accent hover:bg-brand-accent/10 rounded-2xl transition-all">Edit</button>
-                            <button
-                              onClick={() => handleDeleteCategory(cat.id)}
-                              className="p-4 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-2xl transition-all"
-                            >
-                              <Trash2 size={20} />
-                            </button>
-                          </td>
-                        </tr>
-                      ))}
+                          <tr key={cat.id} className="hover:bg-slate-50/30 transition-colors">
+                            <td className="px-10 py-8">
+                              <input type="checkbox" checked={selectedCategoryIds.includes(cat.id)} onChange={(e) => setSelectedCategoryIds(e.target.checked ? [...selectedCategoryIds, cat.id] : selectedCategoryIds.filter(id => id !== cat.id))} />
+                            </td>
+                            <td className="px-10 py-8">
+                              <div className="flex items-center gap-6">
+                                <img src={cat.image} alt="" className="w-16 h-16 rounded-2xl object-cover shadow-sm" />
+                                <p className="font-bold text-brand-primary text-lg">{cat.name}</p>
+                              </div>
+                            </td>
+                            <td className="px-10 py-8">
+                              <p className="text-xs text-brand-muted font-medium line-clamp-2 max-w-xs">{cat.description}</p>
+                            </td>
+                            <td className="px-10 py-8 text-right flex gap-2">
+                              <button onClick={() => { setEditingCategory(cat); setNewCategory({ ...cat, image: null }); }} className="p-4 text-slate-300 hover:text-brand-accent hover:bg-brand-accent/10 rounded-2xl transition-all">Edit</button>
+                              <button
+                                onClick={() => handleDeleteCategory(cat.id)}
+                                className="p-4 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-2xl transition-all"
+                              >
+                                <Trash2 size={20} />
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
                     </tbody>
                   </table>
                 ) : (
@@ -794,7 +670,7 @@ export default function Admin() {
                     </tbody>
                   </table>
                 )}
-                
+
                 {activeTab !== 'contacts' && (
                   <div className="flex justify-center items-center gap-4 py-10">
                     <button
@@ -817,7 +693,7 @@ export default function Admin() {
                   </div>
                 )}
               </div>
-              
+
               {((activeTab === 'products' && products.length === 0) || (activeTab === 'categories' && categories.length === 0) || (activeTab === 'contacts' && contacts.length === 0)) && !loading && (
                 <div className="py-32 text-center">
                   <div className="w-20 h-20 bg-slate-50 rounded-3xl flex items-center justify-center mx-auto mb-6">
