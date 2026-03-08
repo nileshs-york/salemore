@@ -393,10 +393,16 @@ export default function Admin() {
                       placeholder="4.99"
                     />
                   </div>
-                  <div className="space-y-2">
+                  <div className="space-y-4">
                     <label className="text-[10px] font-black uppercase tracking-widest text-brand-muted ml-2">Product Image</label>
+                    {editingProduct && editingProduct.image && (
+                      <div className="flex items-center gap-4 bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                        <img src={editingProduct.image} alt="current" className="w-12 h-12 rounded-lg object-cover" />
+                        <span className="text-[10px] font-bold text-brand-muted uppercase tracking-widest">Current Image</span>
+                      </div>
+                    )}
                     <input
-                      required
+                      required={!editingProduct}
                       type="file"
                       accept="image/*"
                       onChange={(e) => setNewProduct({ ...newProduct, image: e.target.files?.[0] || null })}
@@ -510,10 +516,16 @@ export default function Admin() {
                       placeholder="e.g. Jelly Cubes"
                     />
                   </div>
-                  <div className="space-y-2">
+                  <div className="space-y-4">
                     <label className="text-[10px] font-black uppercase tracking-widest text-brand-muted ml-2">Category Image</label>
+                    {editingCategory && editingCategory.image && (
+                      <div className="flex items-center gap-4 bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                        <img src={editingCategory.image} alt="current" className="w-12 h-12 rounded-lg object-cover" />
+                        <span className="text-[10px] font-bold text-brand-muted uppercase tracking-widest">Current Image</span>
+                      </div>
+                    )}
                     <input
-                      required
+                      required={!editingCategory}
                       type="file"
                       accept="image/*"
                       onChange={(e) => setNewCategory({ ...newCategory, image: e.target.files?.[0] || null })}
