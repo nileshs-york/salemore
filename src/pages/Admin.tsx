@@ -573,8 +573,14 @@ export default function Admin() {
                                   category_id: product.category_id.toString(),
                                   price: product.price.toString(),
                                   is_featured: !!product.is_featured,
-                                  image: null
-                                });
+                                  image: null as any,
+                                  packaging_size: product.packaging_size || '',
+                                  shape: product.shape || '',
+                                  packaging: product.packaging || '',
+                                  color: product.color || '',
+                                  per_piece_price: product.per_piece_price || '',
+                                  mrp: product.mrp || ''
+                                } as any);
                               }} className="p-4 text-slate-300 hover:text-brand-accent hover:bg-brand-accent/10 rounded-2xl transition-all">Edit</button>
                               <button
                                 onClick={() => handleDeleteProduct(product.id)}
