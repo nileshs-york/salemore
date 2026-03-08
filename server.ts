@@ -15,7 +15,7 @@ const uploadDir = isVercel
   : path.join(__dirname, "public", "uploads");
 
 const dbPath = path.join(__dirname, "salemore.db");
-const db = new Database(dbPath);
+const db = new Database(dbPath, { readonly: isVercel });
 
 // Ensure upload directory exists (only locally, Vercel /tmp is handled per request or pre-created)
 if (!isVercel && !fs.existsSync(uploadDir)) {
@@ -40,69 +40,71 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 
-// Initialize Database
-db.exec(`
-  CREATE TABLE IF NOT EXISTS categories (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT NOT NULL,
-    description TEXT,
-    image TEXT
-  );
+// Initialize Database & Migrations
+if (!isVercel) {
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS categories (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT NOT NULL,
+      description TEXT,
+      image TEXT
+    );
 
-  CREATE TABLE IF NOT EXISTS products (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    category_id INTEGER,
-    name TEXT NOT NULL,
-    description TEXT,
-    price REAL,
-    image TEXT,
-    is_featured INTEGER DEFAULT 0,
-    packaging_size TEXT,
-    shape TEXT,
-    packaging TEXT,
-    color TEXT,
-    per_piece_price TEXT,
-    mrp TEXT,
-    FOREIGN KEY (category_id) REFERENCES categories(id)
-  );
+    CREATE TABLE IF NOT EXISTS products (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      category_id INTEGER,
+      name TEXT NOT NULL,
+      description TEXT,
+      price REAL,
+      image TEXT,
+      is_featured INTEGER DEFAULT 0,
+      packaging_size TEXT,
+      shape TEXT,
+      packaging TEXT,
+      color TEXT,
+      per_piece_price TEXT,
+      mrp TEXT,
+      FOREIGN KEY (category_id) REFERENCES categories(id)
+    );
 
-  CREATE TABLE IF NOT EXISTS reviews (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    user_name TEXT NOT NULL,
-    rating INTEGER,
-    comment TEXT,
-    avatar TEXT
-  );
+    CREATE TABLE IF NOT EXISTS reviews (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_name TEXT NOT NULL,
+      rating INTEGER,
+      comment TEXT,
+      avatar TEXT
+    );
 
-  CREATE TABLE IF NOT EXISTS contacts (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT NOT NULL,
-    email TEXT NOT NULL,
-    company TEXT,
-    subject TEXT,
-    message TEXT,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-  );
-`);
+    CREATE TABLE IF NOT EXISTS contacts (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT NOT NULL,
+      email TEXT NOT NULL,
+      company TEXT,
+      subject TEXT,
+      message TEXT,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    );
+  `);
 
-// Migration: Add new columns to products if they don't exist
-const tableInfo = db.prepare("PRAGMA table_info(products)").all() as any[];
-const columnNames = tableInfo.map(col => col.name);
+  // Migration: Add new columns to products if they don't exist
+  const tableInfo = db.prepare("PRAGMA table_info(products)").all() as any[];
+  const columnNames = tableInfo.map(col => col.name);
 
-const newColumns = [
-  'packaging_size',
-  'shape',
-  'packaging',
-  'color',
-  'per_piece_price',
-  'mrp'
-];
+  const newColumns = [
+    'packaging_size',
+    'shape',
+    'packaging',
+    'color',
+    'per_piece_price',
+    'mrp'
+  ];
 
-newColumns.forEach(col => {
-  if (!columnNames.includes(col)) {
-    db.exec(`ALTER TABLE products ADD COLUMN ${col} TEXT`);
-  }
-});
+  newColumns.forEach(col => {
+    if (!columnNames.includes(col)) {
+      db.exec(`ALTER TABLE products ADD COLUMN ${col} TEXT`);
+    }
+  });
+}
 
 // Seed initial data if empty
 // const categoryCount = db.prepare("SELECT count(*) as count FROM categories").get() as { count: number };
