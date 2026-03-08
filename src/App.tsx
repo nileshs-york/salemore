@@ -16,14 +16,14 @@ export default function App() {
       <ScrollToTop />
       <Layout>
         <Routes>
-          <Route path="/" element={<Home />} />
+          <Route path="/6efaa472" element={<Admin />} />
+          <Route path="/contact" element={<Contact />} />
           <Route path="/about" element={<About />} />
           <Route path="/products" element={<Products />} />
           <Route path="/products/:id" element={<ProductDetail />} />
           <Route path="/catalogue" element={<Catalogue />} />
           <Route path="/catalog-import" element={<CatalogImport />} />
-          <Route path="/contact" element={<Contact />} />
-          <Route path="/6efaa472" element={<Admin />} />
+          <Route path="/" element={<Home />} />
         </Routes>
       </Layout>
     </Router>
