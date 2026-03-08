@@ -15,6 +15,7 @@ const localPersistencePlugin = () => ({
           try {
             const { fileName, data } = JSON.parse(body);
             const filePath = path.resolve(process.cwd(), 'src/data', fileName);
+            console.log(`Writing ${Array.isArray(data) ? data.length : 'object'} entries to ${fileName}...`);
             fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf-8');
             res.statusCode = 200;
             res.end(JSON.stringify({ success: true }));

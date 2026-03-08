@@ -38,30 +38,63 @@ export function DataProvider({ children }: { children: ReactNode }) {
         setIsInitialized(true);
     }, []);
 
-    // Sync to local storage AND local files (dev mode)
+    const lastSyncedProducts = React.useRef<string>('');
+    const lastSyncedCategories = React.useRef<string>('');
+    const lastSyncedContacts = React.useRef<string>('');
+
+    // Shared sync function
+    const syncToFile = (fileName: string, data: any) => {
+        if (import.meta.env.DEV) {
+            console.log(`Syncing ${fileName}...`);
+            fetch('/api/save-local-json', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ fileName, data })
+            })
+                .then(r => r.json())
+                .then(res => console.log(`Sync result for ${fileName}:`, res))
+                .catch(err => console.error(`File sync failed for ${fileName}:`, err));
+        }
+    };
+
+    // Sync Products
     useEffect(() => {
         if (isInitialized) {
-            localStorage.setItem('adminProducts', JSON.stringify(products));
-            localStorage.setItem('adminCategories', JSON.stringify(categories));
-            localStorage.setItem('adminContacts', JSON.stringify(contacts));
+            const currentData = JSON.stringify(products);
+            localStorage.setItem('adminProducts', currentData);
 
-            // Only attempt to save to local files during development
-            // if (import.meta.env.DEV) {
-            const syncFiles = [
-                { fileName: 'products.json', data: products },
-                { fileName: 'categories.json', data: categories },
-                { fileName: 'contacts.json', data: contacts }
-            ];
-
-            syncFiles.forEach(file => {
-                fetch('/api/save-local-json', {
-                    method: 'POST',
-                    body: JSON.stringify(file)
-                }).catch(err => console.log(`File sync not available for ${file.fileName}`));
-            });
-            // }
+            if (currentData !== lastSyncedProducts.current) {
+                syncToFile('products.json', products);
+                lastSyncedProducts.current = currentData;
+            }
         }
-    }, [products, categories, contacts, isInitialized]);
+    }, [products, isInitialized]);
+
+    // Sync Categories
+    useEffect(() => {
+        if (isInitialized) {
+            const currentData = JSON.stringify(categories);
+            localStorage.setItem('adminCategories', currentData);
+
+            if (currentData !== lastSyncedCategories.current) {
+                syncToFile('categories.json', categories);
+                lastSyncedCategories.current = currentData;
+            }
+        }
+    }, [categories, isInitialized]);
+
+    // Sync Contacts
+    useEffect(() => {
+        if (isInitialized) {
+            const currentData = JSON.stringify(contacts);
+            localStorage.setItem('adminContacts', currentData);
+
+            if (currentData !== lastSyncedContacts.current) {
+                syncToFile('contacts.json', contacts);
+                lastSyncedContacts.current = currentData;
+            }
+        }
+    }, [contacts, isInitialized]);
 
     const refreshData = () => {
         // This can be used to manually reload if needed, but the state sync handles it.
