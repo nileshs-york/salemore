@@ -1,7 +1,7 @@
 import { motion, AnimatePresence } from 'motion/react';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Star, ArrowRight, Quote, Zap, ShieldCheck, Users } from 'lucide-react';
+import { Star, ArrowRight, Quote, ShieldCheck, Heart, Sparkles } from 'lucide-react';
 import { Category, Product } from '../types';
 import ProductSlider from '../components/ProductSlider';
 
@@ -203,25 +203,26 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="text-center mb-24">
             <span className="text-brand-accent font-bold uppercase tracking-[0.4em] text-[10px] mb-6 block">Excellence in Production</span>
-            <h2 className="text-5xl md:text-8xl font-black text-white tracking-tighter leading-none">Global Standards.</h2>
+            <h2 className="text-5xl md:text-8xl font-black text-white tracking-tighter leading-none">Our Qualities.</h2>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-12">
             {[
               {
-                title: "ISO 22000 Certified",
-                desc: "Our production lines meet the highest international safety and hygiene protocols.",
+                title: "Quality Assurance",
                 icon: <ShieldCheck className="w-8 h-8 text-brand-accent" />
               },
               {
-                title: "Electric Innovation",
-                desc: "Utilizing state-of-the-art machinery to create textures and flavors that defy convention.",
-                icon: <Zap className="w-8 h-8 text-brand-accent" />
+                title: "Delicious Taste",
+                icon: <Heart className="w-8 h-8 text-brand-accent" />
               },
               {
-                title: "Wholesale Scalability",
-                desc: "Capable of producing massive volumes without compromising a single gram of quality.",
-                icon: <Users className="text-brand-accent" />
+                title: "Flavoured Candy",
+                icon: <Star className="w-8 h-8 text-brand-accent" />
+              },
+              {
+                title: "Hygiene",
+                icon: <Sparkles className="w-8 h-8 text-brand-accent" />
               }
             ].map((feature, i) => (
               <motion.div
@@ -230,13 +231,12 @@ export default function Home() {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.1 }}
                 viewport={{ once: true }}
-                className="p-12 rounded-[2.5rem] bg-white/5 border border-white/10 backdrop-blur-md hover:bg-white/10 transition-all group"
+                className="p-12 rounded-[2.5rem] bg-white/5 border border-white/10 backdrop-blur-md hover:bg-white/10 transition-all group flex flex-col items-center text-center"
               >
                 <div className="mb-8 p-4 bg-white/10 rounded-2xl w-fit group-hover:scale-110 transition-transform">
                   {feature.icon}
                 </div>
-                <h3 className="text-2xl font-black text-white mb-6 tracking-tight">{feature.title}</h3>
-                <p className="text-white/60 text-sm leading-relaxed font-medium">{feature.desc}</p>
+                <h3 className="text-2xl font-black text-white tracking-tight leading-snug">{feature.title}</h3>
               </motion.div>
             ))}
           </div>
