@@ -2,8 +2,7 @@ import { useState, useEffect, FormEvent } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Plus, Trash2, Package, LayoutGrid, AlertCircle, CheckCircle, LogOut, Lock, MessageSquare } from 'lucide-react';
 import { Category, Product } from '../types';
-import categoriesData from '../data/categories.json';
-import productsData from '../data/products.json';
+import { useData } from '../context/DataContext';
 
 interface Contact {
   id: number;
@@ -21,10 +20,9 @@ export default function Admin() {
   const [password, setPassword] = useState('');
   const [loginError, setLoginError] = useState('');
 
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [products, setProducts] = useState<Product[]>([]);
+  const { products, categories, setProducts, setCategories } = useData();
   const [contacts, setContacts] = useState<Contact[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
   const [status, setStatus] = useState<{ type: 'success' | 'error', message: string } | null>(null);
   const [activeTab, setActiveTab] = useState<'products' | 'categories' | 'contacts'>('products');
@@ -59,20 +57,15 @@ export default function Admin() {
   });
 
   useEffect(() => {
-    // Data is loaded statically from JSON imports
-    setCategories(categoriesData as Category[]);
-    setProducts(productsData.map((p: any) => ({ ...p, price: typeof p.price === 'number' ? p.price : parseFloat(p.price) })) as Product[]);
-
-    // Load contacts from localStorage
+    // Contacts are specific to Admin
     const savedContacts = localStorage.getItem('adminContacts');
     if (savedContacts) {
       setContacts(JSON.parse(savedContacts));
     }
-    setLoading(false);
   }, [token]);
 
   const fetchData = () => {
-    // Local state refresh is handled during CRUD operations
+    // Data is provided by DataContext
   };
 
   const handleLogin = async (e: FormEvent) => {
@@ -156,8 +149,18 @@ export default function Admin() {
   const handleUpdateProduct = (e: FormEvent) => {
     e.preventDefault();
     if (!editingProduct) return;
-    setProducts(prev => prev.map(p => p.id === editingProduct.id ? { ...p, ...newProduct, price: parseFloat(newProduct.price) } : p) as any);
-    setStatus({ type: 'success', message: 'Product updated in preview' });
+
+    const updatedProduct = {
+      ...editingProduct, // Start with original
+      ...newProduct,     // Overlay new values
+      category_id: parseInt(newProduct.category_id),
+      price: parseFloat(newProduct.price),
+      is_featured: newProduct.is_featured ? 1 : 0,
+      image: newProduct.image ? URL.createObjectURL(newProduct.image) : editingProduct.image
+    } as any;
+
+    setProducts(prev => prev.map(p => p.id === editingProduct.id ? updatedProduct : p));
+    setStatus({ type: 'success', message: 'Product updated successfully!' });
     setEditingProduct(null);
     setIsAdding(false);
     setTimeout(() => setStatus(null), 3000);
@@ -166,8 +169,15 @@ export default function Admin() {
   const handleUpdateCategory = (e: FormEvent) => {
     e.preventDefault();
     if (!editingCategory) return;
-    setCategories(prev => prev.map(c => c.id === editingCategory.id ? { ...c, ...newCategory } : c) as any);
-    setStatus({ type: 'success', message: 'Category updated in preview' });
+
+    const updatedCategory = {
+      ...editingCategory,
+      ...newCategory,
+      image: newCategory.image ? URL.createObjectURL(newCategory.image) : editingCategory.image
+    } as Category;
+
+    setCategories(prev => prev.map(c => c.id === editingCategory.id ? updatedCategory : c));
+    setStatus({ type: 'success', message: 'Category updated successfully!' });
     setEditingCategory(null);
     setIsAdding(false);
     setTimeout(() => setStatus(null), 3000);

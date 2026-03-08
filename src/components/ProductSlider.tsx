@@ -3,22 +3,23 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Link } from 'react-router-dom';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Product } from '../types';
-import productsData from '../data/products.json';
+import { useData } from '../context/DataContext';
 
 export default function ProductSlider() {
+  const { products: allProducts } = useData();
   const [products, setProducts] = useState<Product[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {
     // Filter for candy, jelly, or related products
-    const filtered = (productsData as any[]).filter((p: any) =>
+    const filtered = (allProducts as any[]).filter((p: any) =>
       p.name.toLowerCase().includes('candy') ||
       p.name.toLowerCase().includes('jelly') ||
       p.description.toLowerCase().includes('candy') ||
       p.description.toLowerCase().includes('jelly')
-    ).map(p => ({ ...p, price: parseFloat(p.price) }));
+    );
     setProducts(filtered);
-  }, []);
+  }, [allProducts]);
 
   const nextSlide = () => {
     setCurrentIndex((prev) => (prev + 1) % Math.max(1, products.length - 2));

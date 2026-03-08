@@ -3,25 +3,28 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { ShoppingBag, ArrowLeft, Star, ShieldCheck, Truck, RefreshCcw } from 'lucide-react';
 import { Product } from '../types';
-import productsData from '../data/products.json';
+import { useData } from '../context/DataContext';
 
 export default function ProductDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { products } = useData();
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
 
   useEffect(() => {
     setLoading(true);
-    const foundProduct = productsData.find((p: any) => p.id === parseInt(id!));
-    if (foundProduct) {
-      setProduct({ ...foundProduct, price: parseFloat(foundProduct.price as any) } as any);
-      setLoading(false);
-    } else {
-      navigate('/products');
+    if (products.length > 0) {
+      const foundProduct = products.find((p: any) => p.id === parseInt(id!));
+      if (foundProduct) {
+        setProduct(foundProduct);
+        setLoading(false);
+      } else {
+        navigate('/products');
+      }
     }
-  }, [id, navigate]);
+  }, [id, navigate, products]);
 
   if (loading) {
     return (

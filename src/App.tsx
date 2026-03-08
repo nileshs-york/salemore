@@ -11,23 +11,27 @@ import Contact from './pages/Contact';
 import Admin from './pages/Admin';
 import NotFound from './pages/NotFound';
 
+import { DataProvider } from './context/DataContext';
+
 export default function App() {
   return (
     <Router>
-      <ScrollToTop />
-      <Layout>
-        <Routes>
-          <Route path="/6efaa472" element={<Admin />} />
-          <Route path="/contact" element={<Contact />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/products" element={<Products />} />
-          <Route path="/products/:id" element={<ProductDetail />} />
-          <Route path="/catalogue" element={<Catalogue />} />
-          <Route path="/catalog-import" element={<CatalogImport />} />
-          <Route path="/" element={<Home />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </Layout>
+      <DataProvider>
+        <ScrollToTop />
+        <Layout>
+          <Routes>
+            <Route path="/6efaa472" element={<Admin />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/products" element={<Products />} />
+            <Route path="/products/:id" element={<ProductDetail />} />
+            <Route path="/catalogue" element={<Catalogue />} />
+            <Route path="/catalog-import" element={<CatalogImport />} />
+            <Route path="/" element={<Home />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </Layout>
+      </DataProvider>
     </Router>
   );
 }

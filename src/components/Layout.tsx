@@ -5,9 +5,7 @@ import { MessageCircle, Instagram, Mail, Phone, MapPin, Menu, X, ShoppingBag } f
 import Loader from './Loader';
 import WhatsAppPopup from './WhatsAppPopup';
 import Popup from './Popup';
-import { Category, Product } from '../types';
-import categoriesData from '../data/categories.json';
-import productsData from '../data/products.json';
+import { useData } from '../context/DataContext';
 
 interface LayoutProps {
   children: ReactNode;
@@ -17,8 +15,7 @@ export default function Layout({ children }: LayoutProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isCollectionsOpen, setIsCollectionsOpen] = useState(false);
-  const [categories, setCategories] = useState<Category[]>(categoriesData);
-  const [products, setProducts] = useState<Product[]>(productsData.map((p: any) => ({ ...p, price: typeof p.price === 'number' ? p.price : parseFloat(p.price) })));
+  const { categories, products } = useData();
   const location = useLocation();
 
   useEffect(() => {

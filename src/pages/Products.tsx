@@ -6,9 +6,10 @@ import { Product, Category } from '../types';
 import categoriesData from '../data/categories.json';
 import productsData from '../data/products.json';
 
+import { useData } from '../context/DataContext';
+
 export default function Products() {
-  const [products, setProducts] = useState<Product[]>(productsData.map((p: any) => ({ ...p, price: parseFloat(p.price) })));
-  const [categories, setCategories] = useState<Category[]>(categoriesData);
+  const { categories, products } = useData();
   const [searchQuery, setSearchQuery] = useState('');
   const [searchParams] = useSearchParams();
   const [selectedCategory, setSelectedCategory] = useState<number | null>(

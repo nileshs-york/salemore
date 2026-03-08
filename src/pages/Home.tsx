@@ -7,12 +7,15 @@ import ProductSlider from '../components/ProductSlider';
 import categoriesData from '../data/categories.json';
 import productsData from '../data/products.json';
 
+import { useData } from '../context/DataContext';
+
 export default function Home() {
-  const [categories, setCategories] = useState<Category[]>(categoriesData);
-  const [featuredProducts, setFeaturedProducts] = useState<Product[]>(productsData.filter((p: any) => p.is_featured));
+  const { categories, products } = useData();
   const [currentSlide, setCurrentSlide] = useState(0);
   const [reviewIndex, setReviewIndex] = useState(0);
   const [reviewLayout, setReviewLayout] = useState({ items: 3, gap: 48 });
+
+  const featuredProducts = products.filter((p: any) => p.is_featured);
 
   const reviews = [
     {
