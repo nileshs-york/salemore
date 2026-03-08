@@ -109,208 +109,209 @@ newColumns.forEach(col => {
 //   insertReview.run("Bob Johnson", 4, "Great variety and fast shipping. My kids love the gummies.", "https://i.pravatar.cc/150?u=bob");
 // }
 
-async function startServer() {
-  const app = express();
-  const PORT = 3000;
+const app = express();
+const PORT = Number(process.env.PORT) || 3000;
 
-  app.use(express.json());
-  app.use("/uploads", express.static(uploadDir));
+app.use(express.json());
+app.use("/uploads", express.static(uploadDir));
 
-  // API Routes
-  app.get("/api/categories", (req, res) => {
-    const categories = db.prepare("SELECT * FROM categories").all();
-    res.json(categories);
-  });
+// API Routes
+app.get("/api/categories", (req, res) => {
+  const categories = db.prepare("SELECT * FROM categories").all();
+  res.json(categories);
+});
 
-  app.get("/api/products", (req, res) => {
-    const { categoryId, featured } = req.query;
-    let query = "SELECT * FROM products";
-    const params = [];
+app.get("/api/products", (req, res) => {
+  const { categoryId, featured } = req.query;
+  let query = "SELECT * FROM products";
+  const params = [];
 
-    if (categoryId) {
-      query += " WHERE category_id = ?";
-      params.push(categoryId);
-    } else if (featured) {
-      query += " WHERE is_featured = 1";
-    }
+  if (categoryId) {
+    query += " WHERE category_id = ?";
+    params.push(categoryId);
+  } else if (featured) {
+    query += " WHERE is_featured = 1";
+  }
 
-    const products = db.prepare(query).all(...params);
-    res.json(products);
-  });
+  const products = db.prepare(query).all(...params);
+  res.json(products);
+});
 
-  app.get("/api/products/:id", (req, res) => {
-    const product = db.prepare("SELECT * FROM products WHERE id = ?").get(req.params.id);
-    if (product) {
-      res.json(product);
-    } else {
-      res.status(404).json({ error: "Product not found" });
-    }
-  });
+app.get("/api/products/:id", (req, res) => {
+  const product = db.prepare("SELECT * FROM products WHERE id = ?").get(req.params.id);
+  if (product) {
+    res.json(product);
+  } else {
+    res.status(404).json({ error: "Product not found" });
+  }
+});
 
-  // Simple Auth Middleware
-  const authMiddleware = (req: express.Request, res: express.Response, next: express.NextFunction) => {
-    const token = req.headers.authorization;
-    if (token === "fake-jwt-token-salemore") {
-      next();
-    } else {
-      res.status(401).json({ error: "Unauthorized" });
-    }
-  };
+// Simple Auth Middleware
+const authMiddleware = (req: express.Request, res: express.Response, next: express.NextFunction) => {
+  const token = req.headers.authorization;
+  if (token === "fake-jwt-token-salemore") {
+    next();
+  } else {
+    res.status(401).json({ error: "Unauthorized" });
+  }
+};
 
-  app.get("/api/reviews", (req, res) => {
-    const reviews = db.prepare("SELECT * FROM reviews").all();
-    res.json(reviews);
-  });
+app.get("/api/reviews", (req, res) => {
+  const reviews = db.prepare("SELECT * FROM reviews").all();
+  res.json(reviews);
+});
 
-  app.post("/api/contacts", (req, res) => {
-    const { name, email, company, subject, message } = req.body;
-    const info = db.prepare(`
-      INSERT INTO contacts (name, email, company, subject, message) 
-      VALUES (?, ?, ?, ?, ?)
-    `).run(name, email, company, subject, message);
-    res.json({ success: true, id: info.lastInsertRowid });
-  });
+app.post("/api/contacts", (req, res) => {
+  const { name, email, company, subject, message } = req.body;
+  const info = db.prepare(`
+    INSERT INTO contacts (name, email, company, subject, message) 
+    VALUES (?, ?, ?, ?, ?)
+  `).run(name, email, company, subject, message);
+  res.json({ success: true, id: info.lastInsertRowid });
+});
 
-  app.get("/api/admin/contacts", authMiddleware, (req, res) => {
-    const contacts = db.prepare("SELECT * FROM contacts ORDER BY created_at DESC").all();
-    res.json(contacts);
-  });
+app.get("/api/admin/contacts", authMiddleware, (req, res) => {
+  const contacts = db.prepare("SELECT * FROM contacts ORDER BY created_at DESC").all();
+  res.json(contacts);
+});
 
-  // Admin Authentication (Simplified for demo)
-  const ADMIN_USER = "admin_manish";
-  const ADMIN_PASS = "Manish@SaleMore#1999";
+// Admin Authentication (Simplified for demo)
+const ADMIN_USER = "admin_manish";
+const ADMIN_PASS = "Manish@SaleMore#1999";
 
-  app.post("/api/admin/login", (req, res) => {
-    const { username, password } = req.body;
-    if (username === ADMIN_USER && password === ADMIN_PASS) {
-      res.json({ success: true, token: "fake-jwt-token-salemore" });
-    } else {
-      res.status(401).json({ error: "Invalid credentials" });
-    }
-  });
+app.post("/api/admin/login", (req, res) => {
+  const { username, password } = req.body;
+  if (username === ADMIN_USER && password === ADMIN_PASS) {
+    res.json({ success: true, token: "fake-jwt-token-salemore" });
+  } else {
+    res.status(401).json({ error: "Invalid credentials" });
+  }
+});
 
-  // Admin API
-  app.post("/api/admin/products", authMiddleware, upload.single("image"), (req, res) => {
-    const {
-      category_id, name, description, price, is_featured,
+// Admin API
+app.post("/api/admin/products", authMiddleware, upload.single("image"), (req, res) => {
+  const {
+    category_id, name, description, price, is_featured,
+    packaging_size, shape, packaging, color, per_piece_price, mrp
+  } = req.body;
+
+  const imagePath = req.file ? `/uploads/${req.file.filename}` : req.body.image;
+
+  const info = db.prepare(`
+    INSERT INTO products (
+      category_id, name, description, price, image, is_featured,
       packaging_size, shape, packaging, color, per_piece_price, mrp
-    } = req.body;
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `).run(
+    category_id, name, description, price, imagePath, is_featured === 'true' || is_featured === '1' ? 1 : 0,
+    packaging_size, shape, packaging, color, per_piece_price, mrp
+  );
+  res.json({ id: info.lastInsertRowid });
+});
 
-    const imagePath = req.file ? `/uploads/${req.file.filename}` : req.body.image;
+app.delete("/api/admin/products/:id", authMiddleware, (req, res) => {
+  db.prepare("DELETE FROM products WHERE id = ?").run(req.params.id);
+  res.json({ success: true });
+});
 
-    const info = db.prepare(`
-      INSERT INTO products (
-        category_id, name, description, price, image, is_featured,
-        packaging_size, shape, packaging, color, per_piece_price, mrp
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `).run(
-      category_id, name, description, price, imagePath, is_featured === 'true' || is_featured === '1' ? 1 : 0,
-      packaging_size, shape, packaging, color, per_piece_price, mrp
-    );
-    res.json({ id: info.lastInsertRowid });
+app.post("/api/admin/products/bulk-delete", authMiddleware, (req, res) => {
+  const { ids } = req.body;
+  const stmt = db.prepare("DELETE FROM products WHERE id = ?");
+  const transaction = db.transaction((ids: number[]) => {
+    for (const id of ids) stmt.run(id);
   });
+  transaction(ids);
+  res.json({ success: true });
+});
 
-  app.delete("/api/admin/products/:id", authMiddleware, (req, res) => {
-    db.prepare("DELETE FROM products WHERE id = ?").run(req.params.id);
-    res.json({ success: true });
-  });
+app.put("/api/admin/products/:id", authMiddleware, upload.single("image"), (req, res) => {
+  const {
+    category_id, name, description, price, is_featured,
+    packaging_size, shape, packaging, color, per_piece_price, mrp
+  } = req.body;
 
-  app.post("/api/admin/products/bulk-delete", authMiddleware, (req, res) => {
-    const { ids } = req.body;
-    const stmt = db.prepare("DELETE FROM products WHERE id = ?");
-    const transaction = db.transaction((ids: number[]) => {
-      for (const id of ids) stmt.run(id);
-    });
-    transaction(ids);
-    res.json({ success: true });
-  });
+  let query = `
+    UPDATE products SET 
+      category_id = ?, name = ?, description = ?, price = ?, 
+      is_featured = ?, packaging_size = ?, shape = ?, packaging = ?, 
+      color = ?, per_piece_price = ?, mrp = ?
+  `;
+  const params = [
+    category_id, name, description, price,
+    is_featured === 'true' || is_featured === '1' ? 1 : 0,
+    packaging_size, shape, packaging, color, per_piece_price, mrp
+  ];
 
-  app.put("/api/admin/products/:id", authMiddleware, upload.single("image"), (req, res) => {
-    const {
-      category_id, name, description, price, is_featured,
-      packaging_size, shape, packaging, color, per_piece_price, mrp
-    } = req.body;
+  if (req.file) {
+    query += ", image = ?";
+    params.push(`/uploads/${req.file.filename}`);
+  }
 
-    let query = `
-      UPDATE products SET 
-        category_id = ?, name = ?, description = ?, price = ?, 
-        is_featured = ?, packaging_size = ?, shape = ?, packaging = ?, 
-        color = ?, per_piece_price = ?, mrp = ?
-    `;
-    const params = [
-      category_id, name, description, price,
-      is_featured === 'true' || is_featured === '1' ? 1 : 0,
-      packaging_size, shape, packaging, color, per_piece_price, mrp
-    ];
+  query += " WHERE id = ?";
+  params.push(req.params.id);
 
-    if (req.file) {
-      query += ", image = ?";
-      params.push(`/uploads/${req.file.filename}`);
-    }
+  db.prepare(query).run(...params);
+  res.json({ success: true });
+});
 
-    query += " WHERE id = ?";
-    params.push(req.params.id);
+app.post("/api/admin/categories", authMiddleware, upload.single("image"), (req, res) => {
+  const { name, description } = req.body;
+  const imagePath = req.file ? `/uploads/${req.file.filename}` : req.body.image;
 
-    db.prepare(query).run(...params);
-    res.json({ success: true });
-  });
+  const info = db.prepare("INSERT INTO categories (name, description, image) VALUES (?, ?, ?)")
+    .run(name, description, imagePath);
+  res.json({ id: info.lastInsertRowid });
+});
 
-  app.post("/api/admin/categories", authMiddleware, upload.single("image"), (req, res) => {
-    const { name, description } = req.body;
-    const imagePath = req.file ? `/uploads/${req.file.filename}` : req.body.image;
+app.delete("/api/admin/categories/:id", authMiddleware, (req, res) => {
+  // Check if category has products
+  const products = db.prepare("SELECT count(*) as count FROM products WHERE category_id = ?").get(req.params.id) as { count: number };
+  if (products.count > 0) {
+    return res.status(400).json({ error: "Cannot delete category with products" });
+  }
+  db.prepare("DELETE FROM categories WHERE id = ?").run(req.params.id);
+  res.json({ success: true });
+});
 
-    const info = db.prepare("INSERT INTO categories (name, description, image) VALUES (?, ?, ?)")
-      .run(name, description, imagePath);
-    res.json({ id: info.lastInsertRowid });
-  });
+app.post("/api/admin/categories/bulk-delete", authMiddleware, (req, res) => {
+  const { ids } = req.body;
+  const stmt = db.prepare("DELETE FROM categories WHERE id = ?");
+  const checkStmt = db.prepare("SELECT count(*) as count FROM products WHERE category_id = ?");
 
-  app.delete("/api/admin/categories/:id", authMiddleware, (req, res) => {
-    // Check if category has products
-    const products = db.prepare("SELECT count(*) as count FROM products WHERE category_id = ?").get(req.params.id) as { count: number };
-    if (products.count > 0) {
-      return res.status(400).json({ error: "Cannot delete category with products" });
-    }
-    db.prepare("DELETE FROM categories WHERE id = ?").run(req.params.id);
-    res.json({ success: true });
-  });
-
-  app.post("/api/admin/categories/bulk-delete", authMiddleware, (req, res) => {
-    const { ids } = req.body;
-    const stmt = db.prepare("DELETE FROM categories WHERE id = ?");
-    const checkStmt = db.prepare("SELECT count(*) as count FROM products WHERE category_id = ?");
-
-    const transaction = db.transaction((ids: number[]) => {
-      for (const id of ids) {
-        const products = checkStmt.get(id) as { count: number };
-        if (products.count === 0) {
-          stmt.run(id);
-        }
+  const transaction = db.transaction((ids: number[]) => {
+    for (const id of ids) {
+      const products = checkStmt.get(id) as { count: number };
+      if (products.count === 0) {
+        stmt.run(id);
       }
-    });
-    transaction(ids);
-    res.json({ success: true });
-  });
-
-  app.put("/api/admin/categories/:id", authMiddleware, upload.single("image"), (req, res) => {
-    const { name, description } = req.body;
-
-    let query = "UPDATE categories SET name = ?, description = ?";
-    const params = [name, description];
-
-    if (req.file) {
-      query += ", image = ?";
-      params.push(`/uploads/${req.file.filename}`);
     }
-
-    query += " WHERE id = ?";
-    params.push(req.params.id);
-
-    db.prepare(query).run(...params);
-    res.json({ success: true });
   });
+  transaction(ids);
+  res.json({ success: true });
+});
+
+app.put("/api/admin/categories/:id", authMiddleware, upload.single("image"), (req, res) => {
+  const { name, description } = req.body;
+
+  let query = "UPDATE categories SET name = ?, description = ?";
+  const params = [name, description];
+
+  if (req.file) {
+    query += ", image = ?";
+    params.push(`/uploads/${req.file.filename}`);
+  }
+
+  query += " WHERE id = ?";
+  params.push(req.params.id);
+
+  db.prepare(query).run(...params);
+  res.json({ success: true });
+});
+
+async function startServer() {
 
   // Vite middleware for development
-  if (process.env.NODE_ENV !== "production") {
+  if (process.env.NODE_ENV !== "production" && !process.env.VERCEL) {
     const vite = await createViteServer({
       server: { middlewareMode: true },
       appType: "spa",
@@ -323,9 +324,17 @@ async function startServer() {
     });
   }
 
-  app.listen(PORT, "0.0.0.0", () => {
-    console.log(`Server running on http://localhost:${PORT}`);
-  });
+  if (process.env.NODE_ENV !== "production" || !process.env.VERCEL) {
+    app.listen(PORT, "0.0.0.0", () => {
+      console.log(`Server running on http://localhost:${PORT}`);
+    });
+  }
 }
 
-startServer();
+// Export the app for Vercel
+export default app;
+
+// Start server locally
+if (process.env.NODE_ENV !== "production" || !process.env.VERCEL) {
+  startServer().catch(console.error);
+}
