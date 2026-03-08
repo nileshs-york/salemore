@@ -6,7 +6,7 @@ import { Product, Category } from '../types';
 import categoriesData from '../data/categories.json';
 import productsData from '../data/products.json';
 
-import { useData } from '../context/DataContext';
+import { useData } from '../context/useData';
 
 export default function Products() {
   const { categories, products } = useData();

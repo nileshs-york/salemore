@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Link } from 'react-router-dom';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Product } from '../types';
-import { useData } from '../context/DataContext';
+import { useData } from '../context/useData';
 
 export default function ProductSlider() {
   const { products: allProducts } = useData();

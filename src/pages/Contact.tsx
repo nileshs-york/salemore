@@ -1,7 +1,7 @@
 import { useState, FormEvent } from 'react';
 import { motion } from 'motion/react';
 import { MessageCircle, Mail, Phone, MapPin, Send, Instagram, ShoppingBag } from 'lucide-react';
-import { useData } from '../context/DataContext';
+import { useData } from '../context/useData';
 
 export default function Contact() {
   const { setContacts } = useData();

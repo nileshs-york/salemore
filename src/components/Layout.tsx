@@ -5,7 +5,7 @@ import { MessageCircle, Instagram, Mail, Phone, MapPin, Menu, X, ShoppingBag } f
 import Loader from './Loader';
 import WhatsAppPopup from './WhatsAppPopup';
 import Popup from './Popup';
-import { useData } from '../context/DataContext';
+import { useData } from '../context/useData';
 
 interface LayoutProps {
   children: ReactNode;

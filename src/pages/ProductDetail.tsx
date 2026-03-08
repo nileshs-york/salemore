@@ -3,7 +3,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { ShoppingBag, ArrowLeft, Star, ShieldCheck, Truck, RefreshCcw } from 'lucide-react';
 import { Product } from '../types';
-import { useData } from '../context/DataContext';
+import { useData } from '../context/useData';
 
 export default function ProductDetail() {
   const { id } = useParams();

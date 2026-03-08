@@ -2,7 +2,7 @@ import { useState, useEffect, FormEvent } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Plus, Trash2, Package, LayoutGrid, AlertCircle, CheckCircle, LogOut, Lock, MessageSquare } from 'lucide-react';
 import { Category, Product } from '../types';
-import { useData } from '../context/DataContext';
+import { useData } from '../context/useData';
 
 export default function Admin() {
   const [token, setToken] = useState<string | null>(localStorage.getItem('adminToken'));

@@ -1,30 +1,9 @@
 /// <reference types="vite/client" />
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { useState, useEffect, ReactNode } from 'react';
 import { Product, Category } from '../types';
 import productsData from '../data/products.json';
 import categoriesData from '../data/categories.json';
-
-interface Contact {
-    id: number;
-    name: string;
-    email: string;
-    company: string;
-    subject: string;
-    message: string;
-    created_at: string;
-}
-
-interface DataContextType {
-    products: Product[];
-    categories: Category[];
-    contacts: Contact[];
-    setProducts: React.Dispatch<React.SetStateAction<Product[]>>;
-    setCategories: React.Dispatch<React.SetStateAction<Category[]>>;
-    setContacts: React.Dispatch<React.SetStateAction<Contact[]>>;
-    refreshData: () => void;
-}
-
-const DataContext = createContext<DataContextType | undefined>(undefined);
+import { DataContext, Contact } from './useData';
 
 export function DataProvider({ children }: { children: ReactNode }) {
     const [products, setProducts] = useState<Product[]>([]);
@@ -67,20 +46,20 @@ export function DataProvider({ children }: { children: ReactNode }) {
             localStorage.setItem('adminContacts', JSON.stringify(contacts));
 
             // Only attempt to save to local files during development
-            // if (import.meta.env.DEV) {
-            const syncFiles = [
-                { fileName: 'products.json', data: products },
-                { fileName: 'categories.json', data: categories },
-                { fileName: 'contacts.json', data: contacts }
-            ];
+            if (import.meta.env.DEV) {
+                const syncFiles = [
+                    { fileName: 'products.json', data: products },
+                    { fileName: 'categories.json', data: categories },
+                    { fileName: 'contacts.json', data: contacts }
+                ];
 
-            syncFiles.forEach(file => {
-                fetch('/api/save-local-json', {
-                    method: 'POST',
-                    body: JSON.stringify(file)
-                }).catch(err => console.log(`File sync not available for ${file.fileName}`));
-            });
-            // }
+                syncFiles.forEach(file => {
+                    fetch('/api/save-local-json', {
+                        method: 'POST',
+                        body: JSON.stringify(file)
+                    }).catch(err => console.log(`File sync not available for ${file.fileName}`));
+                });
+            }
         }
     }, [products, categories, contacts, isInitialized]);
 
@@ -93,12 +72,4 @@ export function DataProvider({ children }: { children: ReactNode }) {
             {children}
         </DataContext.Provider>
     );
-}
-
-export function useData() {
-    const context = useContext(DataContext);
-    if (context === undefined) {
-        throw new Error('useData must be used within a DataProvider');
-    }
-    return context;
 }

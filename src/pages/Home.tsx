@@ -7,7 +7,7 @@ import ProductSlider from '../components/ProductSlider';
 import categoriesData from '../data/categories.json';
 import productsData from '../data/products.json';
 
-import { useData } from '../context/DataContext';
+import { useData } from '../context/useData';
 
 export default function Home() {
   const { categories, products } = useData();
