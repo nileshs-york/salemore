@@ -1,7 +1,7 @@
 import { motion, AnimatePresence } from 'motion/react';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Star, ArrowRight, Quote, ShieldCheck, Heart, Sparkles } from 'lucide-react';
+import { Star, ArrowRight, Quote, ShieldCheck, Heart, Sparkles, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Category, Product } from '../types';
 import ProductSlider from '../components/ProductSlider';
 
@@ -9,6 +9,23 @@ export default function Home() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [reviewIndex, setReviewIndex] = useState(0);
+  const [reviewLayout, setReviewLayout] = useState({ items: 3, gap: 48 });
+
+  const reviews = [
+    {
+      text: "Working with Salemore has been a very positive experience. The products have good market demand, especially the candies and imli range. Their supply is consistent and the team is supportive, which makes distribution smooth for us.",
+      author: "SM Distributor"
+    },
+    {
+      text: "Salemore products sell well at our retail counter. Customers like the taste and color, and the packaging also attracts attention. It’s a reliable brand to keep in stock.",
+      author: "End Point Retailer"
+    },
+    {
+      text: "Salemore offers a good combination of quality products and competitive margins. Their chocolates and candy range are performing well in our market, and we look forward to expanding the partnership.",
+      author: "Salemore Super Stockist"
+    }
+  ];
 
   const heroSlides = [
     {
@@ -28,8 +45,28 @@ export default function Home() {
     const timer = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % heroSlides.length);
     }, 6000);
-    return () => clearInterval(timer);
+
+    const handleResize = () => {
+      if (window.innerWidth < 768) setReviewLayout({ items: 1, gap: 16 });
+      else setReviewLayout({ items: 2, gap: 48 });
+    };
+
+    handleResize();
+    window.addEventListener('resize', handleResize);
+
+    return () => {
+      clearInterval(timer);
+      window.removeEventListener('resize', handleResize);
+    };
   }, []);
+
+  const nextReview = () => {
+    setReviewIndex((prev) => (prev + 1) % Math.max(1, reviews.length - reviewLayout.items + 1));
+  };
+
+  const prevReview = () => {
+    setReviewIndex((prev) => (prev - 1 + Math.max(1, reviews.length - reviewLayout.items + 1)) % Math.max(1, reviews.length - reviewLayout.items + 1));
+  };
 
   return (
     <div className="bg-white overflow-hidden font-sans">
@@ -301,43 +338,55 @@ export default function Home() {
       {/* Partners Reviews */}
       <section className="section-padding bg-brand-secondary">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-24">
-            <span className="text-brand-accent font-bold uppercase tracking-[0.4em] text-[10px] mb-6 block">Trusted Worldwide</span>
-            <h2 className="text-5xl md:text-8xl font-black text-brand-primary tracking-tighter leading-none">Partners Reviews.</h2>
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-16 md:mb-24 gap-6">
+            <div className="text-left">
+              <span className="text-brand-accent font-bold uppercase tracking-[0.4em] text-[10px] mb-6 block">Trusted Worldwide</span>
+              <h2 className="text-5xl md:text-8xl font-black text-brand-primary tracking-tighter leading-none">Partners Reviews.</h2>
+            </div>
+            <div className="flex gap-4 self-end md:self-auto">
+              <button onClick={prevReview} className="p-4 rounded-full bg-white border border-slate-200 hover:bg-brand-accent hover:text-white transition-all shadow-sm">
+                <ChevronLeft size={24} />
+              </button>
+              <button onClick={nextReview} className="p-4 rounded-full bg-white border border-slate-200 hover:bg-brand-accent hover:text-white transition-all shadow-sm">
+                <ChevronRight size={24} />
+              </button>
+            </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
-            {[
-              {
-                text: "Working with Salemore has been a very positive experience. The products have good market demand, especially the candies and imli range. Their supply is consistent and the team is supportive, which makes distribution smooth for us.",
-                author: "SM Distributor"
-              },
-              {
-                text: "Salemore products sell well at our retail counter. Customers like the taste and color, and the packaging also attracts attention. It’s a reliable brand to keep in stock.",
-                author: "End Point Retailer"
-              },
-              {
-                text: "Salemore offers a good combination of quality products and competitive margins. Their chocolates and candy range are performing well in our market, and we look forward to expanding the partnership.",
-                author: "Salemore Super Stockist"
-              }
-            ].map((review, i) => (
-              <div key={i} className="p-16 bg-white rounded-[3rem] shadow-sm border border-slate-100 relative group hover:shadow-2xl transition-all flex flex-col justify-between">
-                <div>
-                  <Quote className="absolute top-12 right-12 w-12 h-12 text-brand-secondary group-hover:text-brand-accent/20 transition-colors" />
-                  <div className="flex gap-1 mb-8">
-                    {[...Array(5)].map((_, i) => (
-                      <Star key={i} className="w-4 h-4 fill-brand-accent text-brand-accent" />
-                    ))}
+          <div className="relative overflow-hidden w-full px-1 py-4">
+            <motion.div
+              className="flex items-stretch"
+              style={{ gap: `${reviewLayout.gap}px` }}
+              animate={{
+                x: `calc(-${reviewIndex * (100 / reviewLayout.items)}% - ${reviewIndex * (reviewLayout.gap / reviewLayout.items)}px)`
+              }}
+              transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+            >
+              {reviews.map((review, i) => (
+                <div
+                  key={i}
+                  className="p-8 sm:p-12 md:p-16 bg-white rounded-[2rem] sm:rounded-[3rem] shadow-sm border border-slate-100 relative group hover:shadow-2xl transition-all flex flex-col justify-between shrink-0"
+                  style={{
+                    width: `calc((100% - ${(reviewLayout.items - 1) * reviewLayout.gap}px) / ${reviewLayout.items})`
+                  }}
+                >
+                  <div>
+                    <Quote className="absolute top-8 sm:top-12 right-8 sm:right-12 w-8 h-8 sm:w-12 sm:h-12 text-brand-secondary group-hover:text-brand-accent/20 transition-colors" />
+                    <div className="flex gap-1 mb-6 sm:mb-8">
+                      {[...Array(5)].map((_, i) => (
+                        <Star key={i} className="w-4 h-4 fill-brand-accent text-brand-accent" />
+                      ))}
+                    </div>
+                    <p className="text-slate-500 text-base sm:text-lg leading-relaxed font-medium mb-8 sm:mb-10 italic">
+                      "{review.text}"
+                    </p>
                   </div>
-                  <p className="text-slate-500 text-lg leading-relaxed font-medium mb-10 italic">
-                    "{review.text}"
-                  </p>
+                  <div>
+                    <h4 className="text-lg sm:text-xl font-black text-brand-primary">{review.author}</h4>
+                  </div>
                 </div>
-                <div>
-                  <h4 className="text-xl font-black text-brand-primary">{review.author}</h4>
-                </div>
-              </div>
-            ))}
+              ))}
+            </motion.div>
           </div>
         </div>
       </section>
