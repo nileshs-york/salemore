@@ -62,6 +62,25 @@ export default function Admin() {
     });
   };
 
+  const uploadFile = async (file: File): Promise<string> => {
+    // We only do real file uploads in DEV mode via our Vite middleware
+    const base64Data = await fileToBase64(file);
+    const fileName = `${Date.now()}-${file.name.replace(/\s+/g, '-')}`;
+
+    try {
+      const response = await fetch('/api/upload-local-file', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fileName, base64Data })
+      });
+      const result = await response.json();
+      return result.url; // Returns e.g. /uploads/123-image.png
+    } catch (err) {
+      console.error('Upload failed, falling back to Base64', err);
+      return base64Data;
+    }
+  };
+
   const handleLogin = async (e: FormEvent) => {
     e.preventDefault();
     setLoginError('');
@@ -89,14 +108,14 @@ export default function Admin() {
     setIsAdding(true);
 
     try {
-      const imageData = newProduct.image ? await fileToBase64(newProduct.image) : '/placeholder.jpg';
+      const imageUrl = newProduct.image ? await uploadFile(newProduct.image) : '/placeholder.jpg';
       const productToAdd = {
         ...newProduct,
         id: Date.now(),
         category_id: parseInt(newProduct.category_id),
         price: parseFloat(newProduct.price),
         is_featured: newProduct.is_featured ? 1 : 0,
-        image: imageData
+        image: imageUrl
       } as any;
 
       setProducts(prev => [productToAdd, ...prev]);
@@ -119,18 +138,18 @@ export default function Admin() {
     setIsAdding(true);
 
     try {
-      const imageData = newCategory.image ? await fileToBase64(newCategory.image) : '/placeholder.jpg';
+      const imageUrl = newCategory.image ? await uploadFile(newCategory.image) : '/placeholder.jpg';
       const categoryToAdd = {
         id: Date.now(),
         ...newCategory,
-        image: imageData
+        image: imageUrl
       } as Category;
 
       setCategories(prev => [categoryToAdd, ...prev]);
       setStatus({ type: 'success', message: 'Category added successfully!' });
       setNewCategory({ name: '', description: '', image: null });
     } catch (err) {
-      console.error('Image conversion failed', err);
+      console.error('Upload failed', err);
       setStatus({ type: 'error', message: 'Failed to process image' });
     }
 
@@ -162,21 +181,21 @@ export default function Admin() {
     setIsAdding(true);
 
     try {
-      const imageData = newProduct.image ? await fileToBase64(newProduct.image) : editingProduct.image;
+      const imageUrl = newProduct.image ? await uploadFile(newProduct.image) : editingProduct.image;
       const updatedProduct = {
         ...editingProduct, // Start with original
         ...newProduct,     // Overlay new values
         category_id: parseInt(newProduct.category_id),
         price: parseFloat(newProduct.price),
         is_featured: newProduct.is_featured ? 1 : 0,
-        image: imageData
+        image: imageUrl
       } as any;
 
       setProducts(prev => prev.map(p => p.id === editingProduct.id ? updatedProduct : p));
       setStatus({ type: 'success', message: 'Product updated successfully!' });
       setEditingProduct(null);
     } catch (err) {
-      console.error('Image conversion failed', err);
+      console.error('Upload failed', err);
       setStatus({ type: 'error', message: 'Failed to process image' });
     }
 
@@ -190,18 +209,18 @@ export default function Admin() {
     setIsAdding(true);
 
     try {
-      const imageData = newCategory.image ? await fileToBase64(newCategory.image) : editingCategory.image;
+      const imageUrl = newCategory.image ? await uploadFile(newCategory.image) : editingCategory.image;
       const updatedCategory = {
         ...editingCategory,
         ...newCategory,
-        image: imageData
+        image: imageUrl
       } as Category;
 
       setCategories(prev => prev.map(c => c.id === editingCategory.id ? updatedCategory : c));
       setStatus({ type: 'success', message: 'Category updated successfully!' });
       setEditingCategory(null);
     } catch (err) {
-      console.error('Image conversion failed', err);
+      console.error('Upload failed', err);
       setStatus({ type: 'error', message: 'Failed to process image' });
     }
 

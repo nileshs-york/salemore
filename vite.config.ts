@@ -23,6 +23,24 @@ const localPersistencePlugin = () => ({
             res.end(JSON.stringify({ error: err.message }));
           }
         });
+      } else if (req.url === '/api/upload-local-file' && req.method === 'POST') {
+        let body = '';
+        req.on('data', (chunk: any) => { body += chunk; });
+        req.on('end', () => {
+          try {
+            const { fileName, base64Data } = JSON.parse(body);
+            // Remove meta info if present (e.g. "data:image/png;base64,")
+            const base64Content = base64Data.split(';base64,').pop();
+            const buffer = Buffer.from(base64Content, 'base64');
+            const uploadPath = path.resolve(process.cwd(), 'public/uploads', fileName);
+            fs.writeFileSync(uploadPath, buffer);
+            res.statusCode = 200;
+            res.end(JSON.stringify({ url: `/uploads/${fileName}` }));
+          } catch (err) {
+            res.statusCode = 500;
+            res.end(JSON.stringify({ error: err.message }));
+          }
+        });
       } else {
         next();
       }
