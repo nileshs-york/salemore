@@ -1,8 +1,10 @@
+import { useState, FormEvent } from 'react';
 import { motion } from 'motion/react';
 import { MessageCircle, Mail, Phone, MapPin, Send, Instagram, ShoppingBag } from 'lucide-react';
-import { useState, FormEvent } from 'react';
+import { useData } from '../context/DataContext';
 
 export default function Contact() {
+  const { setContacts } = useData();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -14,16 +16,14 @@ export default function Contact() {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     try {
-      // Simulate submission by saving to localStorage
-      const existing = JSON.parse(localStorage.getItem('adminContacts') || '[]');
       const newContact = {
         ...formData,
         id: Date.now(),
         created_at: new Date().toISOString()
       };
-      localStorage.setItem('adminContacts', JSON.stringify([newContact, ...existing]));
+      setContacts(prev => [newContact, ...prev]);
 
-      alert('Thank you for your wholesale inquiry. Our regional representative will contact you within 24 hours. (Saved to localStorage)');
+      alert('Thank you for your wholesale inquiry. Our regional representative will contact you within 24 hours.');
       setFormData({ name: '', email: '', subject: '', message: '', company: '' });
     } catch (error) {
       console.error('Error submitting contact form:', error);

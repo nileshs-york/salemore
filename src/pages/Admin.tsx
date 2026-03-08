@@ -4,24 +4,13 @@ import { Plus, Trash2, Package, LayoutGrid, AlertCircle, CheckCircle, LogOut, Lo
 import { Category, Product } from '../types';
 import { useData } from '../context/DataContext';
 
-interface Contact {
-  id: number;
-  name: string;
-  email: string;
-  company: string;
-  subject: string;
-  message: string;
-  created_at: string;
-}
-
 export default function Admin() {
   const [token, setToken] = useState<string | null>(localStorage.getItem('adminToken'));
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loginError, setLoginError] = useState('');
 
-  const { products, categories, setProducts, setCategories } = useData();
-  const [contacts, setContacts] = useState<Contact[]>([]);
+  const { products, categories, contacts, setProducts, setCategories, setContacts } = useData();
   const [loading, setLoading] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
   const [status, setStatus] = useState<{ type: 'success' | 'error', message: string } | null>(null);
@@ -57,11 +46,7 @@ export default function Admin() {
   });
 
   useEffect(() => {
-    // Contacts are specific to Admin
-    const savedContacts = localStorage.getItem('adminContacts');
-    if (savedContacts) {
-      setContacts(JSON.parse(savedContacts));
-    }
+    // Contacts are managed globally, but we might want to check login state here if needed
   }, [token]);
 
   const fetchData = () => {
@@ -104,7 +89,7 @@ export default function Admin() {
     } as any;
 
     setProducts(prev => [productToAdd, ...prev]);
-    setStatus({ type: 'success', message: 'Product added to preview!' });
+    setStatus({ type: 'success', message: 'Product added successfully!' });
     setNewProduct({
       category_id: '', name: '', description: '', price: '', image: null, is_featured: false,
       packaging_size: '', shape: '', packaging: '', color: '', per_piece_price: '', mrp: ''
@@ -122,16 +107,16 @@ export default function Admin() {
       image: newCategory.image ? URL.createObjectURL(newCategory.image) : '/placeholder.jpg'
     } as Category;
     setCategories(prev => [categoryToAdd, ...prev]);
-    setStatus({ type: 'success', message: 'Category added to preview!' });
+    setStatus({ type: 'success', message: 'Category added successfully!' });
     setNewCategory({ name: '', description: '', image: null });
     setIsAdding(false);
     setTimeout(() => setStatus(null), 3000);
   };
 
   const handleDeleteProduct = (id: number) => {
-    if (!confirm('Are you sure? (Preview mode)')) return;
+    if (!confirm('Are you sure you want to delete this product?')) return;
     setProducts(prev => prev.filter(p => p.id !== id));
-    setStatus({ type: 'success', message: 'Product removed from preview' });
+    setStatus({ type: 'success', message: 'Product deleted successfully' });
     setTimeout(() => setStatus(null), 3000);
   };
 
@@ -173,7 +158,7 @@ export default function Admin() {
     const updatedCategory = {
       ...editingCategory,
       ...newCategory,
-      image: newCategory.image ? URL.createObjectURL(newCategory.image) : editingCategory.image
+      image: newCategory.image instanceof File ? URL.createObjectURL(newCategory.image) : editingCategory.image
     } as Category;
 
     setCategories(prev => prev.map(c => c.id === editingCategory.id ? updatedCategory : c));
@@ -310,7 +295,7 @@ export default function Admin() {
               </h2>
 
               {activeTab === 'products' ? (
-                <form onSubmit={handleAddProduct} className="space-y-6">
+                <form onSubmit={editingProduct ? handleUpdateProduct : handleAddProduct} className="space-y-6">
                   <div className="space-y-2">
                     <label className="text-[10px] font-black uppercase tracking-widest text-brand-muted ml-2">Category</label>
                     <select
@@ -634,7 +619,7 @@ export default function Admin() {
                               <p className="text-xs text-brand-muted font-medium line-clamp-2 max-w-xs">{cat.description}</p>
                             </td>
                             <td className="px-10 py-8 text-right flex gap-2">
-                              <button onClick={() => { setEditingCategory(cat); setNewCategory({ ...cat, image: null }); }} className="p-4 text-slate-300 hover:text-brand-accent hover:bg-brand-accent/10 rounded-2xl transition-all">Edit</button>
+                              <button onClick={() => { setEditingCategory(cat); setNewCategory({ name: cat.name, description: cat.description, image: null }); }} className="p-4 text-slate-300 hover:text-brand-accent hover:bg-brand-accent/10 rounded-2xl transition-all">Edit</button>
                               <button
                                 onClick={() => handleDeleteCategory(cat.id)}
                                 className="p-4 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-2xl transition-all"
