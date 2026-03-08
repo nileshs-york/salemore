@@ -9,6 +9,7 @@ import Catalogue from './pages/Catalogue';
 import CatalogImport from './pages/CatalogImport';
 import Contact from './pages/Contact';
 import Admin from './pages/Admin';
+import NotFound from './pages/NotFound';
 
 export default function App() {
   return (
@@ -24,6 +25,7 @@ export default function App() {
           <Route path="/catalogue" element={<Catalogue />} />
           <Route path="/catalog-import" element={<CatalogImport />} />
           <Route path="/" element={<Home />} />
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </Layout>
     </Router>
