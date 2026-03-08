@@ -53,6 +53,15 @@ export default function Admin() {
     // Data is provided by DataContext
   };
 
+  const fileToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = error => reject(error);
+    });
+  };
+
   const handleLogin = async (e: FormEvent) => {
     e.preventDefault();
     setLoginError('');
@@ -75,40 +84,56 @@ export default function Admin() {
     localStorage.removeItem('adminToken');
   };
 
-  const handleAddProduct = (e: FormEvent) => {
+  const handleAddProduct = async (e: FormEvent) => {
     e.preventDefault();
     setIsAdding(true);
 
-    const productToAdd = {
-      ...newProduct,
-      id: Date.now(),
-      category_id: parseInt(newProduct.category_id),
-      price: parseFloat(newProduct.price),
-      is_featured: newProduct.is_featured ? 1 : 0,
-      image: newProduct.image ? URL.createObjectURL(newProduct.image) : '/placeholder.jpg'
-    } as any;
+    try {
+      const imageData = newProduct.image ? await fileToBase64(newProduct.image) : '/placeholder.jpg';
+      const productToAdd = {
+        ...newProduct,
+        id: Date.now(),
+        category_id: parseInt(newProduct.category_id),
+        price: parseFloat(newProduct.price),
+        is_featured: newProduct.is_featured ? 1 : 0,
+        image: imageData
+      } as any;
 
-    setProducts(prev => [productToAdd, ...prev]);
-    setStatus({ type: 'success', message: 'Product added successfully!' });
-    setNewProduct({
-      category_id: '', name: '', description: '', price: '', image: null, is_featured: false,
-      packaging_size: '', shape: '', packaging: '', color: '', per_piece_price: '', mrp: ''
-    });
+      setProducts(prev => [productToAdd, ...prev]);
+      setStatus({ type: 'success', message: 'Product added successfully!' });
+      setNewProduct({
+        category_id: '', name: '', description: '', price: '', image: null, is_featured: false,
+        packaging_size: '', shape: '', packaging: '', color: '', per_piece_price: '', mrp: ''
+      });
+    } catch (err) {
+      console.error('Image conversion failed', err);
+      setStatus({ type: 'error', message: 'Failed to process image' });
+    }
+
     setIsAdding(false);
     setTimeout(() => setStatus(null), 3000);
   };
 
-  const handleAddCategory = (e: FormEvent) => {
+  const handleAddCategory = async (e: FormEvent) => {
     e.preventDefault();
     setIsAdding(true);
-    const categoryToAdd = {
-      id: Date.now(),
-      ...newCategory,
-      image: newCategory.image ? URL.createObjectURL(newCategory.image) : '/placeholder.jpg'
-    } as Category;
-    setCategories(prev => [categoryToAdd, ...prev]);
-    setStatus({ type: 'success', message: 'Category added successfully!' });
-    setNewCategory({ name: '', description: '', image: null });
+
+    try {
+      const imageData = newCategory.image ? await fileToBase64(newCategory.image) : '/placeholder.jpg';
+      const categoryToAdd = {
+        id: Date.now(),
+        ...newCategory,
+        image: imageData
+      } as Category;
+
+      setCategories(prev => [categoryToAdd, ...prev]);
+      setStatus({ type: 'success', message: 'Category added successfully!' });
+      setNewCategory({ name: '', description: '', image: null });
+    } catch (err) {
+      console.error('Image conversion failed', err);
+      setStatus({ type: 'error', message: 'Failed to process image' });
+    }
+
     setIsAdding(false);
     setTimeout(() => setStatus(null), 3000);
   };
@@ -131,39 +156,55 @@ export default function Admin() {
     setTimeout(() => setStatus(null), 3000);
   };
 
-  const handleUpdateProduct = (e: FormEvent) => {
+  const handleUpdateProduct = async (e: FormEvent) => {
     e.preventDefault();
     if (!editingProduct) return;
+    setIsAdding(true);
 
-    const updatedProduct = {
-      ...editingProduct, // Start with original
-      ...newProduct,     // Overlay new values
-      category_id: parseInt(newProduct.category_id),
-      price: parseFloat(newProduct.price),
-      is_featured: newProduct.is_featured ? 1 : 0,
-      image: newProduct.image ? URL.createObjectURL(newProduct.image) : editingProduct.image
-    } as any;
+    try {
+      const imageData = newProduct.image ? await fileToBase64(newProduct.image) : editingProduct.image;
+      const updatedProduct = {
+        ...editingProduct, // Start with original
+        ...newProduct,     // Overlay new values
+        category_id: parseInt(newProduct.category_id),
+        price: parseFloat(newProduct.price),
+        is_featured: newProduct.is_featured ? 1 : 0,
+        image: imageData
+      } as any;
 
-    setProducts(prev => prev.map(p => p.id === editingProduct.id ? updatedProduct : p));
-    setStatus({ type: 'success', message: 'Product updated successfully!' });
-    setEditingProduct(null);
+      setProducts(prev => prev.map(p => p.id === editingProduct.id ? updatedProduct : p));
+      setStatus({ type: 'success', message: 'Product updated successfully!' });
+      setEditingProduct(null);
+    } catch (err) {
+      console.error('Image conversion failed', err);
+      setStatus({ type: 'error', message: 'Failed to process image' });
+    }
+
     setIsAdding(false);
     setTimeout(() => setStatus(null), 3000);
   };
 
-  const handleUpdateCategory = (e: FormEvent) => {
+  const handleUpdateCategory = async (e: FormEvent) => {
     e.preventDefault();
     if (!editingCategory) return;
+    setIsAdding(true);
 
-    const updatedCategory = {
-      ...editingCategory,
-      ...newCategory,
-      image: newCategory.image instanceof File ? URL.createObjectURL(newCategory.image) : editingCategory.image
-    } as Category;
+    try {
+      const imageData = newCategory.image ? await fileToBase64(newCategory.image) : editingCategory.image;
+      const updatedCategory = {
+        ...editingCategory,
+        ...newCategory,
+        image: imageData
+      } as Category;
 
-    setCategories(prev => prev.map(c => c.id === editingCategory.id ? updatedCategory : c));
-    setStatus({ type: 'success', message: 'Category updated successfully!' });
-    setEditingCategory(null);
+      setCategories(prev => prev.map(c => c.id === editingCategory.id ? updatedCategory : c));
+      setStatus({ type: 'success', message: 'Category updated successfully!' });
+      setEditingCategory(null);
+    } catch (err) {
+      console.error('Image conversion failed', err);
+      setStatus({ type: 'error', message: 'Failed to process image' });
+    }
+
     setIsAdding(false);
     setTimeout(() => setStatus(null), 3000);
   };
