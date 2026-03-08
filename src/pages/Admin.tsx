@@ -59,26 +59,20 @@ export default function Admin() {
   });
 
   useEffect(() => {
-    if (token) {
-      fetchData();
-    }
-  }, [token]);
+    // Data is loaded statically from JSON imports
+    setCategories(categoriesData as Category[]);
+    setProducts(productsData.map((p: any) => ({ ...p, price: typeof p.price === 'number' ? p.price : parseFloat(p.price) })) as Product[]);
 
-  const fetchData = async () => {
-    setLoading(true);
-    try {
-      const [cats, prods, conts] = await Promise.all([
-        fetch('/api/categories').then(res => res.json()),
-        fetch('/api/products').then(res => res.json()),
-        fetch('/api/admin/contacts', { headers: { 'Authorization': token || '' } }).then(res => res.json())
-      ]);
-      setCategories(cats);
-      setProducts(prods);
-      setContacts(conts);
-    } catch (err) {
-      console.error('Failed to fetch data');
+    // Load contacts from localStorage
+    const savedContacts = localStorage.getItem('adminContacts');
+    if (savedContacts) {
+      setContacts(JSON.parse(savedContacts));
     }
     setLoading(false);
+  }, [token]);
+
+  const fetchData = () => {
+    // Local state refresh is handled during CRUD operations
   };
 
   const handleLogin = async (e: FormEvent) => {
@@ -103,46 +97,25 @@ export default function Admin() {
     localStorage.removeItem('adminToken');
   };
 
-  const handleAddProduct = async (e: FormEvent) => {
+  const handleAddProduct = (e: FormEvent) => {
     e.preventDefault();
     setIsAdding(true);
-    try {
-      const formData = new FormData();
-      formData.append('category_id', newProduct.category_id);
-      formData.append('name', newProduct.name);
-      formData.append('description', newProduct.description);
-      formData.append('price', newProduct.price);
-      formData.append('is_featured', newProduct.is_featured ? '1' : '0');
-      formData.append('packaging_size', newProduct.packaging_size);
-      formData.append('shape', newProduct.shape);
-      formData.append('packaging', newProduct.packaging);
-      formData.append('color', newProduct.color);
-      formData.append('per_piece_price', newProduct.per_piece_price);
-      formData.append('mrp', newProduct.mrp);
-      if (newProduct.image) {
-        formData.append('image', newProduct.image);
-      }
 
-      const res = await fetch('/api/admin/products', {
-        method: 'POST',
-        headers: {
-          'Authorization': token || ''
-        },
-        body: formData
-      });
-      if (res.ok) {
-        setStatus({ type: 'success', message: 'Product added successfully!' });
-        setNewProduct({
-          category_id: '', name: '', description: '', price: '', image: null, is_featured: false,
-          packaging_size: '', shape: '', packaging: '', color: '', per_piece_price: '', mrp: ''
-        });
-        fetchData();
-      } else {
-        throw new Error();
-      }
-    } catch (err) {
-      setStatus({ type: 'error', message: 'Failed to add product.' });
-    }
+    const productToAdd = {
+      ...newProduct,
+      id: Date.now(),
+      category_id: parseInt(newProduct.category_id),
+      price: parseFloat(newProduct.price),
+      is_featured: newProduct.is_featured ? 1 : 0,
+      image: newProduct.image ? URL.createObjectURL(newProduct.image) : '/placeholder.jpg'
+    } as any;
+
+    setProducts(prev => [productToAdd, ...prev]);
+    setStatus({ type: 'success', message: 'Product added to preview!' });
+    setNewProduct({
+      category_id: '', name: '', description: '', price: '', image: null, is_featured: false,
+      packaging_size: '', shape: '', packaging: '', color: '', per_piece_price: '', mrp: ''
+    });
     setIsAdding(false);
     setTimeout(() => setStatus(null), 3000);
   };

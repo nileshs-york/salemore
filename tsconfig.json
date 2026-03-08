@@ -22,11 +22,5 @@
     },
     "allowImportingTsExtensions": true,
     "noEmit": true
-  },
-  "exclude": [
-    "api",
-    "import_catalog.ts",
-    "read_products.ts",
-    "update_products.ts"
-  ]
+  }
 }

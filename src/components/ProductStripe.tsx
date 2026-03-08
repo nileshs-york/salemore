@@ -2,20 +2,21 @@ import { motion } from 'motion/react';
 import { Link } from 'react-router-dom';
 import { Product } from '../types';
 import { useEffect, useState } from 'react';
+import productsData from '../data/products.json';
 
 export default function ProductStripe() {
   const [products, setProducts] = useState<Product[]>([]);
 
   useEffect(() => {
-    fetch('/api/products?limit=5')
-      .then(res => res.json())
-      .then(setProducts);
+    // Take first 5 products or featured ones
+    const initialProducts = (productsData as any[]).slice(0, 5).map(p => ({ ...p, price: typeof p.price === 'number' ? p.price : parseFloat(p.price) }));
+    setProducts(initialProducts);
   }, []);
 
   return (
     <section className="py-12 bg-brand-primary overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <motion.div 
+        <motion.div
           className="flex gap-8 items-center"
           animate={{ x: [0, -1000] }}
           transition={{ duration: 20, repeat: Infinity, ease: "linear" }}

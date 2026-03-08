@@ -6,6 +6,8 @@ import Loader from './Loader';
 import WhatsAppPopup from './WhatsAppPopup';
 import Popup from './Popup';
 import { Category, Product } from '../types';
+import categoriesData from '../data/categories.json';
+import productsData from '../data/products.json';
 
 interface LayoutProps {
   children: ReactNode;
@@ -15,13 +17,11 @@ export default function Layout({ children }: LayoutProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isCollectionsOpen, setIsCollectionsOpen] = useState(false);
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [products, setProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<Category[]>(categoriesData);
+  const [products, setProducts] = useState<Product[]>(productsData.map((p: any) => ({ ...p, price: typeof p.price === 'number' ? p.price : parseFloat(p.price) })));
   const location = useLocation();
 
   useEffect(() => {
-    fetch('/api/categories').then(res => res.json()).then(setCategories);
-    fetch('/api/products').then(res => res.json()).then(setProducts);
     const handleScroll = () => setIsScrolled(window.scrollY > 50);
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
